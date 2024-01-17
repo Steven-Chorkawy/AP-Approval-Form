@@ -7,7 +7,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
 
     return (
       <div>
-        <h1>Hello World!</h1>
+        <h1>Select Library Staff</h1>
         <hr />
         <PeoplePicker
           context={this.props.context}
@@ -19,9 +19,10 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
           // disabled={true}
           searchTextLimit={3}
           // onChange={this._getPeoplePickerItems}
-          showHiddenInUI={false}
+          // showHiddenInUI={false}
           principalTypes={[PrincipalType.User]}
-          resolveDelay={1000} />
+          // resolveDelay={1000}
+        />
       </div>
     );
   }
