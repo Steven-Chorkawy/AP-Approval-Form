@@ -11,6 +11,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import * as strings from 'ApApprovalFormWebPartStrings';
 import ApApprovalForm from './components/ApApprovalForm';
 import { IApApprovalFormProps } from './components/IApApprovalFormProps';
+import { getSP } from '../../MyHelperMethods/MyHelperMethods';
 
 export interface IApApprovalFormWebPartProps {
   description: string;
@@ -37,6 +38,10 @@ export default class ApApprovalFormWebPart extends BaseClientSideWebPart<IApAppr
   }
 
   protected onInit(): Promise<void> {
+    super.onInit().then(() => {
+      getSP(this.context);
+    });
+
     return this._getEnvironmentMessage().then(message => {
       this._environmentMessage = message;
     });
