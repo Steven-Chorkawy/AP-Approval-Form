@@ -13,6 +13,7 @@
   },
   "externals": {},
   "localizedResources": {
-    "ApApprovalFormWebPartStrings": "lib/webparts/apApprovalForm/loc/{locale}.js"
+    "ApApprovalFormWebPartStrings": "lib/webparts/apApprovalForm/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
   }
 }
