@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "ap-approval-form-client-side-solution",
+    "id": "656d3c0a-07f5-4f86-ad42-3a8598dba60c",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "ap-approval-form description"
+      },
+      "longDescription": {
+        "default": "ap-approval-form description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "ap-approval-form Feature",
+        "description": "The feature that activates elements of the ap-approval-form solution.",
+        "id": "6f7762f4-468a-44e3-a0ac-a10dadccc6ec",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/ap-approval-form.sppkg"
+  }
+}

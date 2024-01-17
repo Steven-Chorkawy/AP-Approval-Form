@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "ap-approval-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/apApprovalForm/ApApprovalFormWebPart.js",
+          "manifest": "./src/webparts/apApprovalForm/ApApprovalFormWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "ApApprovalFormWebPartStrings": "lib/webparts/apApprovalForm/loc/{locale}.js"
+  }
+}
