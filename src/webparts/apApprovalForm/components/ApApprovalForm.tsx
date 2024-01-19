@@ -18,7 +18,8 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
       approvedInvoices: [],
       yourInvoices: [],
       selectedView: 'yourInvoices',
-      showTheseInvoices: []
+      showTheseInvoices: [],
+      searchFilter: ""
     };
 
     GetInvoiceByStatus('Awaiting Approval').then(invoices => {
@@ -121,6 +122,44 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
     ];
   }
 
+  private _applySearchFilter = (): void => {
+    let visibleInvoices: IAPInvoiceQueryItem[] = [];
+
+    switch (this.state.selectedView) {
+      case "yourInvoices":
+        visibleInvoices = this.state.yourInvoices;
+        break;
+      case "approvedInvoices":
+        visibleInvoices = this.state.approvedInvoices;
+        break;
+      case "awaitingApprovalInvoices":
+        visibleInvoices = this.state.awaitingApprovalInvoices;
+        break;
+      default:
+        visibleInvoices = this.state.yourInvoices;
+        break;
+    }
+
+    // console.log('before filter');
+    // console.log(visibleInvoices);
+
+    // if (this.state.searchFilter != "") {
+    //   // visibleInvoices = visibleInvoices.filter(f => {
+    //   //   f.Invoice_x0020_Number.includes(this.state.searchFilter) ||
+    //   //     f.Vendor_x0020_Name.includes(this.state.searchFilter) ||
+    //   //     f.Vendor_x0020_Number.includes(this.state.searchFilter)
+    //   // });
+    //   visibleInvoices = visibleInvoices.filter(f => {
+    //     f.Vendor_x0020_Name.includes(this.state.searchFilter)
+    //   });
+    // }
+
+    // console.log('after filter');
+    // console.log(visibleInvoices);
+
+    this.setState({ showTheseInvoices: visibleInvoices });
+  }
+
   public render(): React.ReactElement<IApApprovalFormProps> {
     return (
       <div>
@@ -130,31 +169,18 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
               options={[{ key: 'yourInvoices', text: `Your Invoices (${this.state.yourInvoices.length})` }, { key: 'awaitingApprovalInvoices', text: `Awaiting Approval (${this.state.awaitingApprovalInvoices.length})` }, { key: 'approvedInvoices', text: `Approved (${this.state.approvedInvoices.length})` },]}
               defaultSelectedKey={this.state.selectedView}
               onChange={(e, option) => {
-                let visibleInvoices: IAPInvoiceQueryItem[] = [];
-                switch (option?.key) {
-                  case "yourInvoices":
-                    visibleInvoices = this.state.yourInvoices;
-                    break;
-                  case "approvedInvoices":
-                    visibleInvoices = this.state.approvedInvoices;
-                    break;
-                  case "awaitingApprovalInvoices":
-                    visibleInvoices = this.state.awaitingApprovalInvoices;
-                    break;
-                  default:
-                    visibleInvoices = this.state.yourInvoices;
-                    break;
-                }
-
-                this.setState({
-                  selectedView: option?.key as string,
-                  showTheseInvoices: visibleInvoices
-                });
+                this.setState({ selectedView: option?.key as string }, () => { this._applySearchFilter() });
               }}
             />
           </Stack.Item>
           <Stack.Item grow={4}>
-            <SearchBox placeholder="Search Invoices" />
+            <SearchBox
+              placeholder="Search Invoices"
+              onChange={(event, newValue: string) => {
+                debugger;
+                this.setState({ searchFilter: newValue }, () => { this._applySearchFilter() });
+              }}
+            />
           </Stack.Item>
         </Stack>
         <Stack horizontal horizontalAlign="space-evenly" style={{ marginTop: '5px' }}>
