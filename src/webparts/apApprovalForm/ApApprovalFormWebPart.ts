@@ -19,15 +19,18 @@ export interface IApApprovalFormWebPartProps {
 
 export default class ApApprovalFormWebPart extends BaseClientSideWebPart<IApApprovalFormWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<IApApprovalFormProps> = React.createElement(
-      ApApprovalForm,
-      {
-        description: this.properties.description,
-        context: this.context
-      }
-    );
-
-    ReactDom.render(element, this.domElement);
+    getSP().web.currentUser().then(currentUser => {
+      const element: React.ReactElement<IApApprovalFormProps> = React.createElement(
+        ApApprovalForm,
+        {
+          description: this.properties.description,
+          context: this.context,
+          currentUser: currentUser
+        }
+      );
+  
+      ReactDom.render(element, this.domElement);
+    });
   }
 
   protected onInit(): Promise<void> {
