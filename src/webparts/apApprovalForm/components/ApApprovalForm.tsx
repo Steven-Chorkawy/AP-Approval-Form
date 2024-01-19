@@ -8,6 +8,7 @@ import { Stack, Dropdown, SearchBox, PrimaryButton, DefaultButton, DetailsList, 
 import { IApApprovalFormState } from './IApApprovalFormState';
 import { IAPInvoiceQueryItem } from '../../../interfaces/IAPInvoiceQueryItem';
 import { filterBy } from '@progress/kendo-data-query';
+import ApprovalSidePanel from '../../../Components/ApprovalSidePanel';
 
 
 export default class ApApprovalForm extends React.Component<IApApprovalFormProps, IApApprovalFormState> {
@@ -51,6 +52,17 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
 
   private _getColumns = (): IColumn[] => {
     return [
+      {
+        key: 'Title',
+        name: 'Title',
+        fieldName: 'Title',
+        minWidth: 50,
+        maxWidth: 50,
+        isResizable: true,
+        onRender: (item: IAPInvoiceQueryItem) => {
+          return <span><DefaultButton title='Click to View and Approve Invoice.' onClick={() => { this.setState({ selectedRow: item }) }}>{item.Title}</DefaultButton></span>
+        }
+      },
       {
         key: 'Vendor_x0020_Name',
         name: 'Vendor Name',
@@ -109,14 +121,6 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         key: 'OData__Status',
         name: 'Status',
         fieldName: 'OData__Status',
-        minWidth: 16,
-        maxWidth: 16,
-        isResizable: true,
-      },
-      {
-        key: 'Title',
-        name: 'Title',
-        fieldName: 'Title',
         minWidth: 16,
         maxWidth: 16,
         isResizable: true,
@@ -195,8 +199,18 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         <DetailsList
           items={this.state.showTheseInvoices}
           columns={this._getColumns()}
-          selectionMode={SelectionMode.single}
+          selectionMode={SelectionMode.none}
         />
+
+        {
+          this.state.selectedRow &&
+          <ApprovalSidePanel
+            invoice={this.state.selectedRow}
+            onDismiss={() => { this.setState({ selectedRow: undefined }); }}
+            context={this.props.context}
+          />
+        }
+
       </div>
     );
   }

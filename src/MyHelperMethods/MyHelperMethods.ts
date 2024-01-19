@@ -1,5 +1,9 @@
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { ISPFXContext, SPFI, SPFx, spfi } from "@pnp/sp";
+import "@pnp/sp/fields";
+import "@pnp/sp/items/get-all";
+import "@pnp/sp/items";
+
 import { MyLists } from "../enums/MyLists";
 import { IAPInvoiceQueryItem } from "../interfaces/IAPInvoiceQueryItem";
 
@@ -17,6 +21,22 @@ export const GetInvoiceByStatus = async (status: string): Promise<IAPInvoiceQuer
     console.log(`GetInvoiceByStatus: ${status}`);
     console.log(output);
     return output;
+}
+
+export const GetChoiceColumn = async (listTitle: string, columnName: string): Promise<string[]> => {
+    const sp = getSP();
+    try {
+        const choiceColumn: any = await sp.web.lists.getByTitle(listTitle).fields.getByTitle(columnName).select('Choices')();
+        return choiceColumn.Choices;
+    } catch (error) {
+        console.error('Something went wrong in GetChoiceColumn!');
+        console.error(error);
+        return [];
+    }
+};
+
+export const GetDepartments = async (): Promise<any> => {
+    return await getSP().web.lists.getByTitle('Departments').items.select('Title, ID').getAll();
 }
 
 
