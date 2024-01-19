@@ -7,6 +7,8 @@ import "@pnp/sp/lists";
 import { Stack, Dropdown, SearchBox, PrimaryButton, DefaultButton, DetailsList, IColumn, SelectionMode } from '@fluentui/react';
 import { IApApprovalFormState } from './IApApprovalFormState';
 import { IAPInvoiceQueryItem } from '../../../interfaces/IAPInvoiceQueryItem';
+import { filterBy } from '@progress/kendo-data-query';
+
 
 export default class ApApprovalForm extends React.Component<IApApprovalFormProps, IApApprovalFormState> {
 
@@ -140,9 +142,27 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         break;
     }
 
-    
+    let searchBoxFilterObj: any = {
+      logic: "or",
+      filters: [
+        { field: 'Title', operator: 'contains', value: this.state.searchFilter },
+        { field: 'Vendor_x0020_Number', operator: 'contains', value: this.state.searchFilter },
+        { field: 'Vendor_x0020_Name', operator: 'contains', value: this.state.searchFilter },
+        { field: 'Invoice_x0020_Number', operator: 'contains', value: this.state.searchFilter },
+        { field: 'PO_x0020__x0023_', operator: 'contains', value: this.state.searchFilter },
+        { field: 'Batch_x0020_Number', operator: 'contains', value: this.state.searchFilter },
+      ]
+    };
 
-    this.setState({ showTheseInvoices: visibleInvoices });
+    console.log('before filter');
+    console.log(visibleInvoices);
+
+    let filteredInvoices = filterBy(visibleInvoices, searchBoxFilterObj);
+
+    console.log('after filter');
+    console.log(filteredInvoices);
+
+    this.setState({ showTheseInvoices: filteredInvoices });
   }
 
   public render(): React.ReactElement<IApApprovalFormProps> {
