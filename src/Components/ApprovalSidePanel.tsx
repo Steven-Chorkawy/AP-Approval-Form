@@ -37,6 +37,10 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private _horizontalAlignment: Alignment = "space-between";
     private _formFieldStyle = { width: '30%' };
+    private _greyColor = 'rgb(204 204 204)';
+    private _blueColor = 'rgb(177 191 224)';
+    private _redColour = 'rgb(216 153 153)';
+
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         {
@@ -69,218 +73,225 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                         </Stack.Item>
                                     </Stack>
                                     <hr />
-                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Invoice_x0020_Type"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Invoice Type"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"DepartmentId"}
-                                                    component={Dropdown}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Department"}
-                                                    placeholder={'Select Department'}
-                                                    multiSelect={true}
-                                                    options={this.state?.departments}
-                                                    defaultSelectedKeys={this.props.invoice.DepartmentId}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name='Requires_x0020_Approval_x0020_FromId'
-                                                    context={this.props.context}
-                                                    personSelectionLimit={10}
-                                                    // defaultSelectedUsers={this.state.item.Requires_x0020_Approval_x0020_From && this.state.item.Requires_x0020_Approval_x0020_From.map(user => user.EMail)}
-                                                    principalTypes={[PrincipalType.User]}
-                                                    resolveDelay={1000}
-                                                    component={PeoplePicker}
-                                                    onChange={(e: IPersonaProps[]) => {
-                                                        // MyHelper.GetUsersByLoginName(e).then(users => {
-                                                        //     formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: { results: [...users.map(user => { return user.Id; })] } });
-                                                        // });
-                                                    }}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
-                                    <Stack>
-                                        <FieldWrapper>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"DocumentSetDescription"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Notes"}
-                                                    multiline
-                                                    rows={3}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
-                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
-                                        <FieldWrapper>
-                                            <div className="k-form-field-wrap">
-                                                (this field isn't ready yet.)
-                                                <Field
-                                                    name={"amountAllocated"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Amount Allocated"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
-                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Vendor_x0020_Name"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Vendor Name"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Vendor_x0020_Number"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Vendor ID"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Invoice_x0020_Number"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Invoice Number"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
-                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Invoice_x0020_Date"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Invoice Date"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Received_x0020_Date"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Received Date"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Gross_x0020_Amount"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Invoice Total (incl. tax)"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
-                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Total_x0020_Tax_x0020_Amount"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Total Tax Amount"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"PO_x0020__x0023_"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"PO #"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"close"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Close"}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
-                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Prices_x0020_OK"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Prices OK"}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"Adds_x0020_OK"}
-                                                    component={TextField}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Adds OK"}
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                        <FieldWrapper style={this._formFieldStyle}>
-                                            <div className="k-form-field-wrap">
-                                                <Field
-                                                    name={"ChequeType"}
-                                                    component={Dropdown}
-                                                    labelClassName={"k-form-label"}
-                                                    label={"Cheque Type"}
-                                                    options={this.state?.chequeType}
-                                                    placeholder='Select Cheque Type'
-                                                />
-                                            </div>
-                                        </FieldWrapper>
-                                    </Stack>
+                                    <div style={{ backgroundColor: this._greyColor }}>
+                                        <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Invoice_x0020_Type"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Invoice Type"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"DepartmentId"}
+                                                        component={Dropdown}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Department"}
+                                                        placeholder={'Select Department'}
+                                                        multiSelect={true}
+                                                        options={this.state?.departments}
+                                                        defaultSelectedKeys={this.props.invoice.DepartmentId}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name='Requires_x0020_Approval_x0020_FromId'
+                                                        context={this.props.context}
+                                                        personSelectionLimit={10}
+                                                        titleText={'Requires Approval From'}
+                                                        // defaultSelectedUsers={this.state.item.Requires_x0020_Approval_x0020_From && this.state.item.Requires_x0020_Approval_x0020_From.map(user => user.EMail)}
+                                                        principalTypes={[PrincipalType.User]}
+                                                        resolveDelay={1000}
+                                                        component={PeoplePicker}
+                                                        onChange={(e: IPersonaProps[]) => {
+                                                            // MyHelper.GetUsersByLoginName(e).then(users => {
+                                                            //     formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: { results: [...users.map(user => { return user.Id; })] } });
+                                                            // });
+                                                        }}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                        <Stack>
+                                            <FieldWrapper>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"DocumentSetDescription"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Notes"}
+                                                        multiline
+                                                        rows={3}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                        <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                            <FieldWrapper>
+                                                <div className="k-form-field-wrap">
+                                                    (this field isn't ready yet.)
+                                                    <Field
+                                                        name={"amountAllocated"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Amount Allocated"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                    </div>
+                                    <div style={{ backgroundColor: this._blueColor }}>
+                                        <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Vendor_x0020_Name"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Vendor Name"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Vendor_x0020_Number"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Vendor ID"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Invoice_x0020_Number"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Invoice Number"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                        <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Invoice_x0020_Date"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Invoice Date"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Received_x0020_Date"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Received Date"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Gross_x0020_Amount"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Invoice Total (incl. tax)"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                        <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Total_x0020_Tax_x0020_Amount"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Total Tax Amount"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"PO_x0020__x0023_"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"PO #"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"close"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Close"}
+                                                        disabled={true}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                    </div>
+                                    <div style={{ backgroundColor: this._redColour }}>
+                                        <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Prices_x0020_OK"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Prices OK"}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"Adds_x0020_OK"}
+                                                        component={TextField}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Adds OK"}
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                            <FieldWrapper style={this._formFieldStyle}>
+                                                <div className="k-form-field-wrap">
+                                                    <Field
+                                                        name={"ChequeType"}
+                                                        component={Dropdown}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Cheque Type"}
+                                                        options={this.state?.chequeType}
+                                                        placeholder='Select Cheque Type'
+                                                    />
+                                                </div>
+                                            </FieldWrapper>
+                                        </Stack>
+                                    </div>
                                 </div>
                             )}
                         />
