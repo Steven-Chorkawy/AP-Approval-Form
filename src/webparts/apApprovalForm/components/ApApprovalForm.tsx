@@ -1,18 +1,28 @@
 import * as React from 'react';
 import type { IApApprovalFormProps } from './IApApprovalFormProps';
-import { getSP } from '../../../MyHelperMethods/MyHelperMethods';
+import { GetAwaitingApprovalInvoices, getSP } from '../../../MyHelperMethods/MyHelperMethods';
 import "@pnp/sp/webs";
 import "@pnp/sp/site-users/web";
 import "@pnp/sp/lists";
 import { Stack, Dropdown, SearchBox, PrimaryButton, DefaultButton } from '@fluentui/react';
+import { IApApprovalFormState } from './IApApprovalFormState';
 
-export default class ApApprovalForm extends React.Component<IApApprovalFormProps, {}> {
+export default class ApApprovalForm extends React.Component<IApApprovalFormProps, IApApprovalFormState> {
 
   /**
    *
    */
   constructor(props: IApApprovalFormProps) {
     super(props);
+
+    this.state = {
+      awaitingApprovalInvoices: []
+    };
+
+    GetAwaitingApprovalInvoices().then(invoices => {
+      this.setState({ awaitingApprovalInvoices: invoices });
+    });
+
     getSP().web.siteUsers().then(value => {
       console.log('All Site Users');
       console.log(value);
@@ -30,13 +40,13 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
     return (
       <div>
         <Stack horizontal horizontalAlign="space-around">
-          <Stack.Item grow={3}>
+          <Stack.Item grow={2}>
             <Dropdown
-              options={[{ key: 'Your Invoices', text: 'Your Invoices' }, { key: 'Awaiting Approval', text: 'Awaiting Approval' }, { key: 'Approved', text: 'Approved' },]}
+              options={[{ key: 'Your Invoices', text: 'Your Invoices' }, { key: 'Awaiting Approval', text: `Awaiting Approval (${this.state.awaitingApprovalInvoices.length})` }, { key: 'Approved', text: 'Approved' },]}
               defaultSelectedKey={'Your Invoices'}
             />
           </Stack.Item>
-          <Stack.Item grow={2}>
+          <Stack.Item grow={3}>
             <SearchBox placeholder="Search Invoices" />
           </Stack.Item>
         </Stack>
