@@ -140,22 +140,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         break;
     }
 
-    // console.log('before filter');
-    // console.log(visibleInvoices);
-
-    // if (this.state.searchFilter != "") {
-    //   // visibleInvoices = visibleInvoices.filter(f => {
-    //   //   f.Invoice_x0020_Number.includes(this.state.searchFilter) ||
-    //   //     f.Vendor_x0020_Name.includes(this.state.searchFilter) ||
-    //   //     f.Vendor_x0020_Number.includes(this.state.searchFilter)
-    //   // });
-    //   visibleInvoices = visibleInvoices.filter(f => {
-    //     f.Vendor_x0020_Name.includes(this.state.searchFilter)
-    //   });
-    // }
-
-    // console.log('after filter');
-    // console.log(visibleInvoices);
+    
 
     this.setState({ showTheseInvoices: visibleInvoices });
   }
@@ -176,8 +161,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
           <Stack.Item grow={4}>
             <SearchBox
               placeholder="Search Invoices"
-              onChange={(event, newValue: string) => {
-                debugger;
+              onChange={(event, newValue?: string) => {
                 this.setState({ searchFilter: newValue }, () => { this._applySearchFilter() });
               }}
             />

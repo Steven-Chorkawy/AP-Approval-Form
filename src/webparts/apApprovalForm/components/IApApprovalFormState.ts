@@ -6,5 +6,5 @@ export interface IApApprovalFormState {
     approvedInvoices: IAPInvoiceQueryItem[];
     yourInvoices: IAPInvoiceQueryItem[];    // Invoices that are Awaiting Approval and assigned to the current user.
     selectedView: string; // yourInvoices, approvedInvoices, or awaitingApprovalInvoices.
-    searchFilter: string;
+    searchFilter?: string;
 }
