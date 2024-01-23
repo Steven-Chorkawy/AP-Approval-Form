@@ -1,3 +1,5 @@
 export enum MyLists {
-    Invoices = "Invoices"
+    Departments = "Departments",
+    Invoices = "Invoices",
+    InvoiceAccountCodes = "Invoice Accounts"
 }

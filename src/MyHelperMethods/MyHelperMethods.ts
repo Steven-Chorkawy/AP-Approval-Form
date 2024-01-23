@@ -6,6 +6,7 @@ import "@pnp/sp/items";
 
 import { MyLists } from "../enums/MyLists";
 import { IAPInvoiceQueryItem } from "../interfaces/IAPInvoiceQueryItem";
+import { IAccountCodeQueryItem } from "../interfaces/IAccountCodeQueryItem";
 
 let _sp: SPFI;
 
@@ -36,13 +37,21 @@ export const GetChoiceColumn = async (listTitle: string, columnName: string): Pr
 };
 
 export const GetDepartments = async (): Promise<any> => {
-    return await getSP().web.lists.getByTitle('Departments').items.select('Title, ID').getAll();
+    return await getSP().web.lists.getByTitle(MyLists.Departments).items.select('Title, ID').getAll();
+}
+
+export const GetAccountCodes = async (folderName: string): Promise<IAccountCodeQueryItem[]> => {
+    let output = await getSP().web.lists.getByTitle(MyLists.InvoiceAccountCodes).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><Eq><FieldRef Name="StrInvoiceFolder"/><Value Type="Text">${folderName}</Value></Eq></Where></Query></View>` });
+    return output;
 }
 
 
 //#region Format
 export const FormatCurrency = (i: number): string => {
-    return i.toLocaleString('en-US', { style: 'currency', currency: 'USD', });
+    if (i)
+        return i.toLocaleString('en-US', { style: 'currency', currency: 'USD', });
+    else
+        return 'Bad Number!';
 }
 
 /**
