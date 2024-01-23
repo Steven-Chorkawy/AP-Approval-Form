@@ -32,11 +32,11 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         yourInvoices: defaultInvoices,
         showTheseInvoices: defaultInvoices
       });
-    });
+    }).catch(reason => console.error(reason));
 
     GetInvoiceByStatus('Approved').then(invoices => {
       this.setState({ approvedInvoices: invoices });
-    });
+    }).catch(reason => console.error(reason));
 
     getSP().web.siteUsers().then(value => {
       console.log('All Site Users');
@@ -47,7 +47,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
 
       console.log('@cplma.ca emails');
       console.log(value.filter(f => f.Email.indexOf('@cplma.ca') > -1));
-    });
+    }).catch(reason => console.error(reason));
   }
 
   private _getColumns = (): IColumn[] => {
@@ -146,7 +146,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         break;
     }
 
-    let searchBoxFilterObj: any = {
+    const searchBoxFilterObj: any = {
       logic: "or",
       filters: [
         { field: 'Title', operator: 'contains', value: this.state.searchFilter },
@@ -158,13 +158,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
       ]
     };
 
-    console.log('before filter');
-    console.log(visibleInvoices);
-
-    let filteredInvoices = filterBy(visibleInvoices, searchBoxFilterObj);
-
-    console.log('after filter');
-    console.log(filteredInvoices);
+    const filteredInvoices = filterBy(visibleInvoices, searchBoxFilterObj);
 
     this.setState({ showTheseInvoices: filteredInvoices });
   }

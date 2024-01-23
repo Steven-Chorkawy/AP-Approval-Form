@@ -18,7 +18,7 @@ export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
     onDismiss: any;
     context: WebPartContext;
-};
+}
 
 export interface IApprovalSidePanelState {
     chequeType: IDropdownOption[];
@@ -112,11 +112,11 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             this.setState({
                 chequeType: value.map(v => { return { key: v, text: v }; })
             });
-        });
+        }).catch(reason => console.error(reason));
 
         GetDepartments().then(value => {
             this.setState({ departments: value.map((v: any) => { return { key: v.ID, text: v.Title }; }) })
-        });
+        }).catch(reason => console.error(reason));
 
         GetAccountCodes(this.props.invoice.Title).then(value => {
             console.log('Account Codes Found:');
@@ -128,7 +128,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     GLAccountCodes: value
                 }
             });
-        });
+        }).catch(reason => console.error(reason));
     }
 
     private _horizontalAlignment: Alignment = "space-between";
@@ -310,7 +310,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         </DefaultButton>
                     </GridToolbar>
                     <GridColumn field="Title" title="Title" cell={this.NameCell} />
-                    <GridColumn field="Amount" title="Amount (Including HST)" cell={this.NumberCell} />
+                    <GridColumn field="AmountIncludingTaxes" title="Amount (Including HST)" cell={this.NumberCell} />
                     <GridColumn cell={CommandCell} width={100} />
                 </Grid>
             </FormGridEditContext.Provider>
@@ -413,7 +413,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                         <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                             <FieldWrapper>
                                                 <div className="k-form-field-wrap">
-                                                    (this field isn't ready yet.)
+                                                    (this field is not ready yet.)
                                                     <Field
                                                         name={"amountAllocated"}
                                                         component={TextField}

@@ -29,9 +29,9 @@ export default class ApApprovalFormWebPart extends BaseClientSideWebPart<IApAppr
           currentUser: currentUser
         }
       );
-  
+
       ReactDom.render(element, this.domElement);
-    });
+    }).catch(reason => console.error(reason));
   }
 
   protected onInit(): Promise<void> {

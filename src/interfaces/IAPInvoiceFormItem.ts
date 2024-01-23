@@ -22,7 +22,7 @@ export interface IAPInvoiceFormItem {
     OData__Status: string;
     PO_x0020__x0023_: string;   // PO #
     Prices_x0020_OK: any;
-    Purchasing: String;
+    Purchasing: string;
     Received_x0020_Date: string;
     Received_x0020_Approval_x0020_FromId: any;
     Requires_x0020_Approval_x0020_FromId: number[];
