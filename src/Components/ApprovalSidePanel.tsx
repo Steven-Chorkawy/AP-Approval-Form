@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, IconButton, MaskedTextField, Panel, PanelType, PrimaryButton, ProgressIndicator, Shimmer, SpinButton, Stack, TextField } from '@fluentui/react';
+import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, IconButton, MaskedTextField, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, Shimmer, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 
-import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps } from "@progress/kendo-react-form";
+import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
 import { FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments } from '../MyHelperMethods/MyHelperMethods';
@@ -33,7 +33,7 @@ export const FormGridEditContext = React.createContext<{
     onRemove: (dataItem: any) => void;
     onSave: () => void;
     onCancel: () => void;
-    myChange: (dataItem: any) => void;
+    // myChange: (dataItem: any) => void;
     editIndex: number | undefined;
     parentField: string;
 }>({} as any);
@@ -139,15 +139,19 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private NumericTextBoxWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
-        const { myChange } = React.useContext(FormGridEditContext);
+        // const { myChange } = React.useContext(FormGridEditContext);
 
         return (
             <div>
                 <SpinButton
                     {...others}
-                    label='Amount'
+                    label='AmountIncludingTaxes'
+                    labelPosition={Position.top}
                     onChange={(event: any, newValue: string) => {
-                        myChange({ value: Number(newValue), fieldName: fieldRenderProps.name });
+                        console.log('Spin button on change!');
+                        console.log(newValue);
+                        fieldRenderProps.onChange({ value: newValue })
+                        // myChange({ value: Number(newValue), fieldName: 'AmountIncludingTaxes' });
                     }}
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
@@ -180,18 +184,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     mask="999-99-999-99999-9999"
                     title="Enter a GL Account Code."
                 />
-
-                {/* <VirtualizedComboBox
-                    {...others}
-                    allowFreeInput={false}
-                    autoComplete={'on'}
-                    options={this.state.AllGLCodes.map(value => { return { key: value.ID, text: value.Title }; })}
-                    onChange={(e, options) => {
-                        myChange({ value: options?.text, fieldName: fieldRenderProps.name });
-                        myChange({ value: options?.key, fieldName: fieldRenderProps.name.replace('Title', 'GLAccountCodeId') });
-                    }}
-                    calloutProps={{ calloutMinWidth: 200 }}
-                /> */}
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
             </div>
         );
@@ -206,7 +198,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     component={isInEdit ? this.TextInputWithValidation : DisplayValue}
                     name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
                     validator={requiredValidator}
-                    defaultSelectedKey={props.dataItem.GLAccountCodeId}
                 />
             </td>
         );
@@ -216,7 +207,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
      * Custom grid component for GL Account Codes.
      * @param fieldArrayRenderProps Field Array Render Props.
      */
-    private FormGrid = (fieldArrayRenderProps: any): any => {
+    private FormGrid = (fieldArrayRenderProps: FieldArrayRenderProps): any => {
         const { name, dataItemKey } = fieldArrayRenderProps;
         const [editIndex, setEditIndex] = React.useState<number | undefined>();
         const editItemCloneRef = React.useRef();
@@ -282,9 +273,10 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             setEditIndex(undefined);
         }, [fieldArrayRenderProps]);
 
-        const myChange = React.useCallback((dataItem): any => {
-            fieldArrayRenderProps.formOnChange(dataItem.fieldName, { value: dataItem.value });
-        }, []);
+        // const myChange = React.useCallback((dataItem): any => {
+        //     // fieldArrayRenderProps.formOnChange(dataItem.fieldName, { value: dataItem.value });
+        //     fieldArrayRenderProps.
+        // }, []);
 
         const dataWithIndexes = fieldArrayRenderProps.value?.map((item: any, index: any): any => {
             return { ...item, [FORM_DATA_INDEX]: index };
@@ -296,7 +288,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     onCancel,
                     onRemove,
                     onSave,
-                    myChange,
+                    // myChange,
                     editIndex,
                     parentField: name,
                 }}
@@ -310,7 +302,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         </DefaultButton>
                     </GridToolbar>
                     <GridColumn field="Title" title="Title" cell={this.NameCell} />
-                    <GridColumn field="AmountIncludingTaxes" title="Amount (Including HST)" cell={this.NumberCell} />
+                    <GridColumn field="AmountIncludingTaxes" title="AmountIncludingTaxes" cell={this.NumberCell} />
                     <GridColumn cell={CommandCell} width={100} />
                 </Grid>
             </FormGridEditContext.Provider>
