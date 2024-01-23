@@ -3,7 +3,7 @@ import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPer
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 
 import { Form, FieldWrapper, Field, FormElement, FieldArray } from "@progress/kendo-react-form";
-import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
+// import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { GetChoiceColumn, GetDepartments } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
@@ -145,7 +145,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     parentField: name,
                 }}
             >
-                <Grid data={dataWithIndexes} dataItemKey={dataItemKey}>
+                {/* <Grid data={dataWithIndexes} dataItemKey={dataItemKey}>
                     <GridToolbar>
                         <DefaultButton
                             title="Add New GL Code"
@@ -156,7 +156,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     <GridColumn field="Title" title="Title" cell={this.NameCell} />
                     <GridColumn field="Amount" title="Amount (Including HST)" cell={this.NumberCell} />
                     <GridColumn cell={CommandCell} width={100} />
-                </Grid>
+                </Grid> */}
             </FormGridEditContext.Provider>
         );
     }
@@ -416,7 +416,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                             <FieldArray
                                                 name="GLAccountCodes"
                                                 dataItemKey={DATA_ITEM_KEY}
-                                                component={FormGrid}
+                                                component={this.FormGrid}
                                             />
                                         </FormElement>
                                     </Stack>
