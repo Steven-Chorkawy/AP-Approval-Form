@@ -286,6 +286,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     label={"Cheque Type"}
                                                     options={this.state?.chequeType}
                                                     placeholder='Select Cheque Type'
+                                                    defaultSelectedKey={this.props.invoice.ChequeType}
                                                 />
                                             </div>
                                         </FieldWrapper>
