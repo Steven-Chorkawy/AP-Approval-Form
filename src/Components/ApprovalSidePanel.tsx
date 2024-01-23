@@ -39,7 +39,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     private _formFieldStyle = { width: '30%' };
     private _greyColor = 'rgb(204 204 204)';
     private _blueColor = 'rgb(177 191 224)';
-    private _redColour = 'rgb(216 153 153)';
+    private _redColor = 'rgb(216 153 153)';
 
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
@@ -255,7 +255,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                         </FieldWrapper>
                                     </Stack>
                                 </div>
-                                <div style={{ backgroundColor: this._redColour }}>
+                                <div style={{ backgroundColor: this._redColor }}>
                                     <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                         <FieldWrapper style={this._formFieldStyle}>
                                             <div className="k-form-field-wrap">
