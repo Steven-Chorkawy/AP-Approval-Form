@@ -2,7 +2,8 @@ import * as React from 'react';
 import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, Panel, PanelType, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 
-import { Form, FieldWrapper, Field } from "@progress/kendo-react-form";
+import { Form, FieldWrapper, Field, FormElement, FieldArray } from "@progress/kendo-react-form";
+import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { GetChoiceColumn, GetDepartments } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
@@ -19,6 +20,20 @@ export interface IApprovalSidePanelState {
     chequeType: IDropdownOption[];
     departments: IDropdownOption[];
 }
+
+//#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
+// Create React.Context to pass props to the Form Field components from the main component
+export const FormGridEditContext = React.createContext<{
+    onRemove: (dataItem: any) => void;
+    onSave: () => void;
+    onCancel: () => void;
+    myChange: (dataItem: any) => void;
+    editIndex: number | undefined;
+    parentField: string;
+}>({} as any);
+
+const FORM_DATA_INDEX = "formDataIndex";
+const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 
 export default class ApprovalSidePanel extends React.Component<IApprovalSidePanelProps, IApprovalSidePanelState> {
 
@@ -40,6 +55,111 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     private _greyColor = 'rgb(204 204 204)';
     private _blueColor = 'rgb(177 191 224)';
     private _redColor = 'rgb(216 153 153)';
+
+    /**
+     * Custom grid component for GL Account Codes.
+     * @param fieldArrayRenderProps Field Array Render Props.
+     */
+    private FormGrid = (fieldArrayRenderProps: any): any => {
+        const { name, dataItemKey } = fieldArrayRenderProps;
+        const [editIndex, setEditIndex] = React.useState<number | undefined>();
+        const editItemCloneRef = React.useRef();
+
+        // Add a new item to the Form FieldArray that will be shown in the Grid
+        const onAdd = React.useCallback(
+            (e) => {
+                e.preventDefault();
+                fieldArrayRenderProps.onUnshift({
+                    value: {
+                        ID: "",
+                    },
+                });
+
+                setEditIndex(0);
+            },
+            [fieldArrayRenderProps]
+        );
+
+        // Remove a new item to the Form FieldArray that will be removed from the Grid
+        const onRemove = React.useCallback(
+            (dataItem) => {
+                if (dataItem.ID) {
+                    // DeletePCardLineItem(dataItem.ID)
+                    //     .then(value => {
+                    //         fieldArrayRenderProps.onRemove({
+                    //             index: dataItem[FORM_DATA_INDEX],
+                    //         });
+
+                    //         setEditIndex(undefined);
+                    //     })
+                    //     .catch(reason => {
+                    //         alert('Failed to Delete Line Item!');
+                    //         console.error(reason);
+                    //     });
+                }
+                else {
+                    fieldArrayRenderProps.onRemove({
+                        index: dataItem[FORM_DATA_INDEX],
+                    });
+
+                    setEditIndex(undefined);
+                }
+            },
+            [fieldArrayRenderProps]
+        );
+
+        // Cancel the editing of an item and return its initial value
+        const onCancel = React.useCallback(() => {
+            if (editItemCloneRef.current) {
+                fieldArrayRenderProps.onReplace({
+                    index: editItemCloneRef.current[FORM_DATA_INDEX],
+                    value: editItemCloneRef.current,
+                });
+            }
+
+            editItemCloneRef.current = undefined;
+            setEditIndex(undefined);
+        }, [fieldArrayRenderProps]);
+
+        // Save the changes
+        const onSave = React.useCallback(() => {
+            setEditIndex(undefined);
+        }, [fieldArrayRenderProps]);
+
+        const myChange = React.useCallback((dataItem): any => {
+            fieldArrayRenderProps.formOnChange(dataItem.fieldName, { value: dataItem.value });
+        }, []);
+
+        const dataWithIndexes = fieldArrayRenderProps.value.map((item: any, index: any): any => {
+            return { ...item, [FORM_DATA_INDEX]: index };
+        });
+
+        return (
+            <FormGridEditContext.Provider
+                value={{
+                    onCancel,
+                    onRemove,
+                    onSave,
+                    myChange,
+                    editIndex,
+                    parentField: name,
+                }}
+            >
+                <Grid data={dataWithIndexes} dataItemKey={dataItemKey}>
+                    <GridToolbar>
+                        <DefaultButton
+                            title="Add New GL Code"
+                            onClick={onAdd} iconProps={{ iconName: 'Add' }}>
+                            Add New GL Code
+                        </DefaultButton>
+                    </GridToolbar>
+                    <GridColumn field="Title" title="Title" cell={this.NameCell} />
+                    <GridColumn field="Amount" title="Amount (Including HST)" cell={this.NumberCell} />
+                    <GridColumn cell={CommandCell} width={100} />
+                </Grid>
+            </FormGridEditContext.Provider>
+        );
+    }
 
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
@@ -290,6 +410,15 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                 />
                                             </div>
                                         </FieldWrapper>
+                                    </Stack>
+                                    <Stack horizontal horizontalAlign={this._horizontalAlignment}>
+                                        <FormElement>
+                                            <FieldArray
+                                                name="GLAccountCodes"
+                                                dataItemKey={DATA_ITEM_KEY}
+                                                component={FormGrid}
+                                            />
+                                        </FormElement>
                                     </Stack>
                                 </div>
                             </div>
