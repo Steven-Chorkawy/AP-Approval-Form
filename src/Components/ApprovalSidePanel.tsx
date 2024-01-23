@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, IconButton, MaskedTextField, Panel, PanelType, PrimaryButton, SpinButton, Stack, TextField } from '@fluentui/react';
+import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, IconButton, MaskedTextField, Panel, PanelType, PrimaryButton, ProgressIndicator, Shimmer, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps } from "@progress/kendo-react-form";
@@ -326,7 +326,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 isOpen={true}
                 onDismiss={this.props.onDismiss}
             >
-                {this.state?.APInvoice &&
+                {this.state?.APInvoice ?
                     <div>
                         <Form
                             initialValues={{ ...this.state.APInvoice }}
@@ -581,6 +581,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                 </div>
                             )}
                         />
+                    </div> :
+                    <div>
+                        <Shimmer />
+                        <Shimmer width="75%" />
+                        <Shimmer width="50%" />
+                        <ProgressIndicator label="Loading Invoice" />
                     </div>
                 }
             </Panel>
