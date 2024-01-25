@@ -115,8 +115,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         }).catch(reason => console.error(reason));
 
         GetAccountCodes(this.props.invoice.Title).then(value => {
-            console.log('Account Codes Found:');
-            console.log(value);
             let userEmails: string[] = [];
 
             for (let approverIDIndex = 0; approverIDIndex < this.props.invoice.Requires_x0020_Approval_x0020_FromId.length; approverIDIndex++) {
@@ -131,8 +129,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     RequiresApprovalFromUserEmails: userEmails
                 }
             });
-            console.log('ap invoice state object');
-            console.log(this.state.APInvoice);
         }).catch(reason => console.error(reason));
     }
 
@@ -152,8 +148,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     label='AmountIncludingTaxes'
                     labelPosition={Position.top}
                     onChange={(event: any, newValue: string) => {
-                        console.log('Spin button on change!');
-                        console.log(newValue);
                         fieldRenderProps.onChange({ value: newValue })
                         // myChange({ value: Number(newValue), fieldName: 'AmountIncludingTaxes' });
                     }}
@@ -346,13 +340,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
-            console.log('Form Submit!');
-            console.log(dataItem);
             for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
                 const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
                 if (!accountCode.ID) {
-                    console.log('Saving account code.');
-                    console.log(accountCode);
                     await CreateAccountCodeLineItem(accountCode);
                 }
             }

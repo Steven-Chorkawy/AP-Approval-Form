@@ -19,8 +19,6 @@ export const getSP = (context?: WebPartContext): SPFI => {
 
 export const GetInvoiceByStatus = async (status: string): Promise<IAPInvoiceQueryItem[]> => {
     const output = await getSP().web.lists.getByTitle(MyLists.Invoices).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><Eq><FieldRef Name="_Status"/><Value Type="Choice">${status}</Value></Eq></Where></Query></View>` });
-    console.log(`GetInvoiceByStatus: ${status}`);
-    console.log(output);
     return output;
 }
 

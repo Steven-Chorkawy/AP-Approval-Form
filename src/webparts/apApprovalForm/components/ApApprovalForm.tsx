@@ -37,17 +37,6 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
     GetInvoiceByStatus('Approved').then(invoices => {
       this.setState({ approvedInvoices: invoices });
     }).catch(reason => console.error(reason));
-
-    getSP().web.siteUsers().then(value => {
-      console.log('All Site Users');
-      console.log(value);
-
-      console.log('IsShareByEmailGuestUser = false');
-      console.log(value.filter(f => f.IsShareByEmailGuestUser === true));
-
-      console.log('@cplma.ca emails');
-      console.log(value.filter(f => f.Email.indexOf('@cplma.ca') > -1));
-    }).catch(reason => console.error(reason));
   }
 
   private _getColumns = (): IColumn[] => {
