@@ -214,7 +214,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 fieldArrayRenderProps.onUnshift({
                     value: {
                         ID: "",
-                        InvoiceFolderIDId: fieldArrayRenderProps.invoiceID
+                        InvoiceFolderIDId: fieldArrayRenderProps.invoiceID,
+                        StrInvoiceFolder: fieldArrayRenderProps.invoiceTitle
                     },
                 });
 
@@ -311,7 +312,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             console.log(dataItem);
             for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
                 const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
-                await CreateAccountCodeLineItem(accountCode);
+                if (!accountCode.ID) {
+                    await CreateAccountCodeLineItem(accountCode);
+                }
             }
         }
 

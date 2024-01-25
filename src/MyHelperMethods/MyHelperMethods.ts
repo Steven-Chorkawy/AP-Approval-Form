@@ -46,6 +46,11 @@ export const GetAccountCodes = async (folderName: string): Promise<IAccountCodeQ
 }
 
 export const CreateAccountCodeLineItem = async (value: IAccountCodeNewItem): Promise<any> => {
+    // value.Title sometimes contains '_' as the last character.   I don't know why.  Remove it here. 
+    if (value.Title.slice(-1) === '_') {
+        value.Title = value.Title.slice(0, -1);
+    }
+
     await getSP().web.lists.getByTitle(MyLists.InvoiceAccountCodes).items.add({
         Title: value.Title,
         AmountIncludingTaxes: Number(value.AmountIncludingTaxes),
