@@ -13,3 +13,11 @@ export interface IAccountCodeQueryItem {
     StrInvoiceFolder: string;   // Title of the invoice folder.
     Title: string;  // The GL Account Code.
 }
+
+export interface IAccountCodeNewItem {
+    Title: string;
+    AmountIncludingTaxes: number;
+    PO_x0020_Line_x0020_Item_x0020__: string;
+    InvoiceFolderIDId: number;
+    StrInvoiceFolder: string;
+}

@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -214,6 +214,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 fieldArrayRenderProps.onUnshift({
                     value: {
                         ID: "",
+                        InvoiceFolderIDId: fieldArrayRenderProps.invoiceID
                     },
                 });
 
@@ -266,7 +267,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         // Save the changes
         const onSave = React.useCallback(() => {
             setEditIndex(undefined);
-            console.log('account code grid on save.');
         }, [fieldArrayRenderProps]);
 
         // const myChange = React.useCallback((dataItem): any => {
@@ -306,6 +306,15 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     }
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
+        const handleSubmit = async (dataItem: any): Promise<any> => {
+            console.log('Form Submit!');
+            console.log(dataItem);
+            for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
+                const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
+                await CreateAccountCodeLineItem(accountCode);
+            }
+        }
+
         return (
             <Panel
                 type={PanelType.extraLarge}
@@ -317,10 +326,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     <div>
                         <Form
                             initialValues={{ ...this.state.APInvoice }}
-                            onSubmit={(submitValue) => {
-                                console.log('submit value');
-                                console.log(submitValue);
-                            }}
+                            onSubmit={handleSubmit}
                             render={(formRenderProps) => (
                                 <div>
                                     <FormElement>
@@ -560,6 +566,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                 <FieldArray
                                                     name="GLAccountCodes"
                                                     dataItemKey={DATA_ITEM_KEY}
+                                                    invoiceID={formRenderProps.valueGetter('ID')}
+                                                    invoiceTitle={formRenderProps.valueGetter('Title')}
                                                     component={this.FormGrid}
                                                 />
                                             </Stack>

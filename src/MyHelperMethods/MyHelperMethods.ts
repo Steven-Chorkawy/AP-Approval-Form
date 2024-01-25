@@ -6,7 +6,7 @@ import "@pnp/sp/items";
 
 import { MyLists } from "../enums/MyLists";
 import { IAPInvoiceQueryItem } from "../interfaces/IAPInvoiceQueryItem";
-import { IAccountCodeQueryItem } from "../interfaces/IAccountCodeQueryItem";
+import { IAccountCodeNewItem, IAccountCodeQueryItem } from "../interfaces/IAccountCodeQueryItem";
 
 let _sp: SPFI;
 
@@ -45,6 +45,15 @@ export const GetAccountCodes = async (folderName: string): Promise<IAccountCodeQ
     return output;
 }
 
+export const CreateAccountCodeLineItem = async (value: IAccountCodeNewItem): Promise<any> => {
+    await getSP().web.lists.getByTitle(MyLists.InvoiceAccountCodes).items.add({
+        Title: value.Title,
+        AmountIncludingTaxes: Number(value.AmountIncludingTaxes),
+        PO_x0020_Line_x0020_Item_x0020__: value.PO_x0020_Line_x0020_Item_x0020__,
+        InvoiceFolderIDId: value.InvoiceFolderIDId,
+        StrInvoiceFolder: value.StrInvoiceFolder
+    });
+}
 
 //#region Format
 export const FormatCurrency = (i: number): string => {
