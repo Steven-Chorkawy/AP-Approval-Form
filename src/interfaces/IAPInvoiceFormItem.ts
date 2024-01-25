@@ -26,6 +26,7 @@ export interface IAPInvoiceFormItem {
     Received_x0020_Date: string;
     Received_x0020_Approval_x0020_FromId: any;
     Requires_x0020_Approval_x0020_FromId: number[];
+    RequiresApprovalFromUserEmails: string[];
     ScannedFileName: string;
     Title: string;
     Total_x0020_Tax_x0020_Amount: number;

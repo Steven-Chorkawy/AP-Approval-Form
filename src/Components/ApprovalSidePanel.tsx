@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -117,13 +117,22 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         GetAccountCodes(this.props.invoice.Title).then(value => {
             console.log('Account Codes Found:');
             console.log(value);
+            let userEmails: string[] = [];
+
+            for (let approverIDIndex = 0; approverIDIndex < this.props.invoice.Requires_x0020_Approval_x0020_FromId.length; approverIDIndex++) {
+                getSP().web.getUserById(this.props.invoice.Requires_x0020_Approval_x0020_FromId[approverIDIndex])().then((user: any) => userEmails.push(user.Email)).catch(reason => console.error(reason));
+            }
+
             this.setState({
                 accountCodes: value,
                 APInvoice: {
                     ...this.props.invoice,
-                    GLAccountCodes: value
+                    GLAccountCodes: value,
+                    RequiresApprovalFromUserEmails: userEmails
                 }
             });
+            console.log('ap invoice state object');
+            console.log(this.state.APInvoice);
         }).catch(reason => console.error(reason));
     }
 
@@ -411,7 +420,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             context={this.props.context}
                                                             personSelectionLimit={10}
                                                             titleText={'Requires Approval From'}
-                                                            // defaultSelectedUsers={this.state.item.Requires_x0020_Approval_x0020_From && this.state.item.Requires_x0020_Approval_x0020_From.map(user => user.EMail)}
+                                                            // defaultSelectedUsers={['schorkawy@clarington.net']}// this works
                                                             principalTypes={[PrincipalType.User]}
                                                             resolveDelay={1000}
                                                             component={PeoplePicker}
