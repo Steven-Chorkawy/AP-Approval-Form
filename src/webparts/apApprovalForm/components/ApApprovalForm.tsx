@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { IApApprovalFormProps } from './IApApprovalFormProps';
-import { FormatCurrency, GetInvoiceByStatus, MyDateFormat2, getSP } from '../../../MyHelperMethods/MyHelperMethods';
+import { FormatCurrency, GetInvoiceByStatus, MyDateFormat2 } from '../../../MyHelperMethods/MyHelperMethods';
 import "@pnp/sp/webs";
 import "@pnp/sp/site-users/web";
 import "@pnp/sp/lists";
