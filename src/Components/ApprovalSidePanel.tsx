@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, IconButton, MaskedTextField, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, Shimmer, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
-
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
@@ -46,8 +45,7 @@ const minValidator = (value: any): any => (value >= 0 ? "" : "Minimum units 0");
 const requiredValidator = (value: any): any => (value ? "" : "The field is required");
 // Add a command cell to Edit, Update, Cancel and Delete an item
 const CommandCell = (props: GridCellProps): any => {
-    const { onRemove, onSave, editIndex } =
-        React.useContext(FormGridEditContext);
+    const { onRemove, onSave, editIndex } = React.useContext(FormGridEditContext);
     const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
     const isNewItem = !props.dataItem[DATA_ITEM_KEY];
 
@@ -102,9 +100,7 @@ const CommandCell = (props: GridCellProps): any => {
     );
 };
 
-
 export default class ApprovalSidePanel extends React.Component<IApprovalSidePanelProps, IApprovalSidePanelState> {
-
     constructor(props: IApprovalSidePanelProps) {
         super(props);
 
@@ -140,7 +136,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     private NumericTextBoxWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
         // const { myChange } = React.useContext(FormGridEditContext);
-
         return (
             <div>
                 <SpinButton
@@ -308,7 +303,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             </FormGridEditContext.Provider>
         );
     }
-
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         return (
