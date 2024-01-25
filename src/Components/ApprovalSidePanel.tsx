@@ -169,7 +169,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         );
     };
 
-    private TextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
+    private MaskedTextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
         return (
             <div>
@@ -184,19 +184,47 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         );
     };
 
+    // private TextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
+    //     const { validationMessage, visited, ...others } = fieldRenderProps;
+    //     return (
+    //         <div>
+    //             <TextField
+    //                 {...others}
+    //                 label="PL Line Item #"
+    //                 title="Enter PL Line Item #"
+    //             />
+    //             {visited && validationMessage && <Error>{validationMessage}</Error>}
+    //         </div>
+    //     );
+    // };
+
     private NameCell = (props: GridCellProps): any => {
         const { parentField, editIndex } = React.useContext(FormGridEditContext);
         const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
         return (
             <td>
                 <Field
-                    component={isInEdit ? this.TextInputWithValidation : DisplayValue}
+                    component={isInEdit ? this.MaskedTextInputWithValidation : DisplayValue}
                     name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
                     validator={requiredValidator}
                 />
             </td>
         );
     };
+
+    // private TextBoxCell = (props: GridCellProps): any => {
+    //     const { parentField, editIndex } = React.useContext(FormGridEditContext);
+    //     const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
+    //     return (
+    //         <td>
+    //             <Field
+    //                 component={isInEdit ? this.TextInputWithValidation : DisplayValue}
+    //                 name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
+    //                 validator={requiredValidator}
+    //             />
+    //         </td>
+    //     );
+    // };
 
     /**
      * Custom grid component for GL Account Codes.
@@ -300,6 +328,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     </GridToolbar>
                     <GridColumn field="Title" title="Title" cell={this.NameCell} />
                     <GridColumn field="AmountIncludingTaxes" title="AmountIncludingTaxes" cell={this.NumberCell} />
+                    {/* <GridColumn field="PO_x0020_Line_x0020_Item_x0020__" title="PO Line Item #" cell={this.TextBoxCell} /> */}
                     <GridColumn cell={CommandCell} width={100} />
                 </Grid>
             </FormGridEditContext.Provider>
@@ -313,6 +342,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
                 const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
                 if (!accountCode.ID) {
+                    console.log('Saving account code.');
+                    console.log(accountCode);
                     await CreateAccountCodeLineItem(accountCode);
                 }
             }
