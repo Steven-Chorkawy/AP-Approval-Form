@@ -569,9 +569,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         />
                     </div> :
                     <div>
-                        <Shimmer />
-                        <Shimmer width="75%" />
-                        <Shimmer width="50%" />
                         <ProgressIndicator label="Loading Invoice" />
                     </div>
                 }
