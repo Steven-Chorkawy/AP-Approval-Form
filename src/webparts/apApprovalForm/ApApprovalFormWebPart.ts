@@ -7,12 +7,10 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
-
 import * as strings from 'ApApprovalFormWebPartStrings';
 import ApApprovalForm from './components/ApApprovalForm';
 import { IApApprovalFormProps } from './components/IApApprovalFormProps';
 import { getSP } from '../../MyHelperMethods/MyHelperMethods';
-
 
 export interface IApApprovalFormWebPartProps {
   description: string;
@@ -45,9 +43,7 @@ export default class ApApprovalFormWebPart extends BaseClientSideWebPart<IApAppr
       return;
     }
 
-    const {
-      semanticColors
-    } = currentTheme;
+    const { semanticColors } = currentTheme;
 
     if (semanticColors) {
       this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
