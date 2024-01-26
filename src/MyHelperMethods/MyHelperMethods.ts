@@ -43,6 +43,25 @@ export const GetAccountCodes = async (folderName: string): Promise<IAccountCodeQ
     return output;
 }
 
+export const GetUserEmails = async (userIDs: number[]): Promise<string[]> => {
+    const output: string[] = [];
+    for (let approverIDIndex = 0; approverIDIndex < userIDs.length; approverIDIndex++) {
+        const user = await getSP().web.getUserById(userIDs[approverIDIndex])();
+        output.push(user.Email);
+    }
+    return output;
+}
+
+export const GetUserByLoginName = async (input: any[]): Promise<number[]> => {
+    const output: number[] = [];
+    for (let index = 0; index < input.length; index++) {
+        const currentUser = input[index];
+        const user = await getSP().web.siteUsers.getByLoginName(currentUser.loginName)();
+        output.push(user.Id);
+    }
+    return output;
+}
+
 export const CreateAccountCodeLineItem = async (value: IAccountCodeNewItem): Promise<any> => {
     // value.Title sometimes contains '_' as the last character.   I don't know why.  Remove it here. 
     if (value.Title.slice(-1) === '_') {

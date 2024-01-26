@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IPersonaProps, IconButton, MaskedTextField, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
+import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MaskedTextField, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -115,20 +115,16 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         }).catch(reason => console.error(reason));
 
         GetAccountCodes(this.props.invoice.Title).then(value => {
-            let userEmails: string[] = [];
-
-            for (let approverIDIndex = 0; approverIDIndex < this.props.invoice.Requires_x0020_Approval_x0020_FromId.length; approverIDIndex++) {
-                getSP().web.getUserById(this.props.invoice.Requires_x0020_Approval_x0020_FromId[approverIDIndex])().then((user: any) => userEmails.push(user.Email)).catch(reason => console.error(reason));
-            }
-
-            this.setState({
-                accountCodes: value,
-                APInvoice: {
-                    ...this.props.invoice,
-                    GLAccountCodes: value,
-                    RequiresApprovalFromUserEmails: userEmails
-                }
-            });
+            GetUserEmails(this.props.invoice.Requires_x0020_Approval_x0020_FromId).then(userEmails => {
+                this.setState({
+                    accountCodes: value,
+                    APInvoice: {
+                        ...this.props.invoice,
+                        GLAccountCodes: value,
+                        RequiresApprovalFromUserEmails: userEmails
+                    }
+                });
+            }).catch(reason => console.error(reason));
         }).catch(reason => console.error(reason));
     }
 
@@ -340,6 +336,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
+            console.log('Form submit');
+            console.log(dataItem);
             for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
                 const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
                 if (!accountCode.ID) {
@@ -410,15 +408,11 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             context={this.props.context}
                                                             personSelectionLimit={10}
                                                             titleText={'Requires Approval From'}
-                                                            // defaultSelectedUsers={['schorkawy@clarington.net']}// this works
+                                                            defaultSelectedUsers={this.state.APInvoice.RequiresApprovalFromUserEmails}
                                                             principalTypes={[PrincipalType.User]}
                                                             resolveDelay={1000}
                                                             component={PeoplePicker}
-                                                            onChange={(e: IPersonaProps[]) => {
-                                                                // MyHelper.GetUsersByLoginName(e).then(users => {
-                                                                //     formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: { results: [...users.map(user => { return user.Id; })] } });
-                                                                // });
-                                                            }}
+                                                            onChange={(items: any[]) => GetUserByLoginName(items).then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value })).catch(reason => console.error(reason))}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
