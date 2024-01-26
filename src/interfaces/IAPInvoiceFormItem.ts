@@ -26,7 +26,7 @@ export interface IAPInvoiceFormItem {
     Received_x0020_Date: string;
     Received_x0020_Approval_x0020_FromId: any;
     Requires_x0020_Approval_x0020_FromId: number[];
-    RequiresApprovalFromUserEmails: string[];
+    RequiresApprovalFromUserEmails?: string[];
     ScannedFileName: string;
     Title: string;
     Total_x0020_Tax_x0020_Amount: number;
@@ -34,5 +34,5 @@ export interface IAPInvoiceFormItem {
     Vendor_x0020_Number: string;
     Voucher_x0020_Number: any;
     ZeroDollarPayment: boolean;
-    GLAccountCodes: IAccountCodeQueryItem[];
+    GLAccountCodes?: IAccountCodeQueryItem[];
 }
