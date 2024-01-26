@@ -204,20 +204,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         );
     };
 
-    // private TextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
-    //     const { validationMessage, visited, ...others } = fieldRenderProps;
-    //     return (
-    //         <div>
-    //             <TextField
-    //                 {...others}
-    //                 label="PL Line Item #"
-    //                 title="Enter PL Line Item #"
-    //             />
-    //             {visited && validationMessage && <Error>{validationMessage}</Error>}
-    //         </div>
-    //     );
-    // };
-
     private NameCell = (props: GridCellProps): any => {
         const { parentField, editIndex } = React.useContext(FormGridEditContext);
         const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
@@ -231,20 +217,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             </td>
         );
     };
-
-    // private TextBoxCell = (props: GridCellProps): any => {
-    //     const { parentField, editIndex } = React.useContext(FormGridEditContext);
-    //     const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
-    //     return (
-    //         <td>
-    //             <Field
-    //                 component={isInEdit ? this.TextInputWithValidation : DisplayValue}
-    //                 name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
-    //                 validator={requiredValidator}
-    //             />
-    //         </td>
-    //     );
-    // };
 
     /**
      * Custom grid component for GL Account Codes.
