@@ -148,9 +148,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         } else {
                             currentValue.splice(currentValue.indexOf(option?.key), 1);
                         }
-
-                        console.log('final options:', currentValue);
-
                         fieldRenderProps.onChange({ value: currentValue });
                     }}
                 />
@@ -362,7 +359,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const handleSubmit = async (dataItem: any): Promise<any> => {
             console.log('Form submit');
             console.log(dataItem);
-            debugger;
             if (dataItem?.GLAccountCodes) {
                 for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
                     const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
@@ -371,12 +367,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     }
                 }
             }
-
             let saveObj = DeletePropertiesBeforeSave(dataItem);
-
-            console.log('before save', saveObj);
-            debugger;
-
             await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
         }
 
