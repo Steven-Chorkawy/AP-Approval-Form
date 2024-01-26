@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -133,6 +133,23 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     private _greyColor = 'rgb(204 204 204)';
     private _blueColor = 'rgb(177 191 224)';
     private _redColor = 'rgb(216 153 153)';
+
+    private DepartmentDropdown = (fieldRenderProps: FieldRenderProps): any => {
+        const { options } = fieldRenderProps;
+        return (
+            <div>
+                <Dropdown
+                    options={options}
+                    {...fieldRenderProps}
+                    onChange={(e, option) => {
+                        console.log(option);
+                        debugger;
+                        fieldRenderProps.onChange({ value: [option?.key] })
+                    }}
+                />
+            </div>
+        );
+    }
 
     private NumericTextBoxWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
@@ -338,12 +355,22 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const handleSubmit = async (dataItem: any): Promise<any> => {
             console.log('Form submit');
             console.log(dataItem);
-            for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
-                const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
-                if (!accountCode.ID) {
-                    await CreateAccountCodeLineItem(accountCode);
+            debugger;
+            if (dataItem?.GLAccountCodes) {
+                for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
+                    const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
+                    if (!accountCode.ID) {
+                        await CreateAccountCodeLineItem(accountCode);
+                    }
                 }
             }
+
+            let saveObj = DeletePropertiesBeforeSave(dataItem);
+
+            console.log('before save', saveObj);
+            debugger;
+
+            await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
         }
 
         return (
@@ -391,7 +418,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"DepartmentId"}
-                                                            component={Dropdown}
+                                                            component={this.DepartmentDropdown}
                                                             labelClassName={"k-form-label"}
                                                             label={"Department"}
                                                             placeholder={'Select Department'}
