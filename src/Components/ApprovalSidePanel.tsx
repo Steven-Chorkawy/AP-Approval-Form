@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MaskedTextField, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
+import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MaskedTextField, MessageBar, MessageBarType, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
@@ -24,6 +24,8 @@ export interface IApprovalSidePanelState {
     departments: IDropdownOption[];
     accountCodes: IAccountCodeQueryItem[];
     APInvoice: IAPInvoiceFormItem;
+    showApproveTextBox: boolean;
+    showDenyTextBox: boolean;
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -122,7 +124,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         ...this.props.invoice,
                         GLAccountCodes: value,
                         RequiresApprovalFromUserEmails: userEmails
-                    }
+                    },
+                    showApproveTextBox: false,
+                    showDenyTextBox: false
                 });
             }).catch(reason => console.error(reason));
         }).catch(reason => console.error(reason));
@@ -142,7 +146,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     options={options}
                     {...fieldRenderProps}
                     onChange={(e, option) => {
-                        let currentValue = fieldRenderProps.value;
+                        const currentValue = fieldRenderProps.value;
                         if (option?.selected) {
                             currentValue.push(option.key);
                         } else {
@@ -339,7 +343,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     }
                 }
             }
-            let saveObj = DeletePropertiesBeforeSave(dataItem);
+            const saveObj = DeletePropertiesBeforeSave(dataItem);
             await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
         }
 
@@ -364,13 +368,59 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                             </Stack.Item>
                                             <Stack.Item grow={4}>
                                                 <Stack horizontal horizontalAlign="space-evenly">
-                                                    <ActionButton iconProps={{ iconName: 'CalculatorMultiply' }} label='Deny'>Deny</ActionButton>
-                                                    <ActionButton iconProps={{ iconName: 'AcceptMedium' }} label='Approve'>Approve</ActionButton>
+                                                    <ActionButton
+                                                        iconProps={{ iconName: 'CalculatorMultiply' }}
+                                                        label='Deny'
+                                                        onClick={() => this.setState({ showDenyTextBox: true, showApproveTextBox: false })}
+                                                    >
+                                                        Deny
+                                                    </ActionButton>
+                                                    <ActionButton
+                                                        iconProps={{ iconName: 'AcceptMedium' }}
+                                                        label='Approve'
+                                                        onClick={() => this.setState({ showDenyTextBox: false, showApproveTextBox: true })}
+                                                    >
+                                                        Approve
+                                                    </ActionButton>
                                                     <PrimaryButton iconProps={{ iconName: 'Save' }} label='Save Changes' type='submit'>Save</PrimaryButton>
                                                 </Stack>
                                             </Stack.Item>
                                         </Stack>
                                         <hr />
+                                        {
+                                            this.state.showApproveTextBox &&
+                                            <Stack>
+                                                <MessageBar messageBarType={MessageBarType.success} isMultiline={true}>
+                                                    <Field
+                                                        name={"ApprovalNotes"}
+                                                        component={TextField}
+                                                        multiline={6}
+                                                        required={false}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Comments (Optional)"}
+                                                    />
+                                                </MessageBar>
+                                                <PrimaryButton iconProps={{ iconName: 'AcceptMedium' }} label='Click to Approve Invoice' type='submit'>Click to Approve Invoice</PrimaryButton>
+                                                <br />
+                                            </Stack>
+                                        }
+                                        {
+                                            this.state.showDenyTextBox &&
+                                            <Stack>
+                                                <MessageBar messageBarType={MessageBarType.error} isMultiline={true}>
+                                                    <Field
+                                                        name={"DenyComment"}
+                                                        component={TextField}
+                                                        multiline={6}
+                                                        required={true}
+                                                        labelClassName={"k-form-label"}
+                                                        label={"Why are you denying this invoice?"}
+                                                    />
+                                                </MessageBar>
+                                                <PrimaryButton iconProps={{ iconName: 'CalculatorMultiply' }} label='Click to Deny Invoice' type='submit'>Click to Deny Invoice</PrimaryButton>
+                                                <br />
+                                            </Stack>
+                                        }
                                         <div style={{ backgroundColor: this._greyColor }}>
                                             <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                                 <FieldWrapper style={this._formFieldStyle}>
