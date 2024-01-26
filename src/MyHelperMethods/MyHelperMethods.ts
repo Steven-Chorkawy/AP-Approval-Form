@@ -104,4 +104,69 @@ export const MyDateFormat1 = (i: string): string => {
 export const MyDateFormat2 = (i: string): string => {
     return new Date(i).toISOString().slice(0, 10);
 }
+
+/**
+ * Remove fields that do not need to be/ cannot be saved in SharePoint.
+ * @param invoice The invoice object from the form.
+ */
+export const DeletePropertiesBeforeSave = (invoice: any): any => {
+    delete invoice.RequiresApprovalFromUserEmails;
+    delete invoice.GLAccountCodes;
+    delete invoice.Id;
+    delete invoice.ID;
+    delete invoice.OData__ColorTag;
+    delete invoice.DateandTime;
+    delete invoice.ContentTypeId;
+    //delete invoice.Received_x0020_Approval_x0020_FromId;
+    delete invoice.Requires_x0020_Approval_x0020_From;
+    delete invoice.Received_x0020_Approval_x0020_From;
+    delete invoice.Requires_x0020_Approval_x0020_FromStringId;
+    delete invoice.Received_x0020_Approval_x0020_FromStringId;
+    delete invoice.Received_x0020_Deny_x0020_From_x0020_String;
+    delete invoice.HiddenApproversId;
+    delete invoice.HiddenApproversStringId;
+    delete invoice.HiddenDepartmentId;
+    delete invoice.SharedWithUsersId;
+    delete invoice.GUID;
+    delete invoice.CheckoutUserId;
+    delete invoice.ComplianceAssetId;
+    delete invoice.IsApproved;
+    delete invoice.MediaServiceKeyPoints;
+    delete invoice.MediaServiceAutoTags;
+    delete invoice.MediaServiceLocation;
+    delete invoice.MediaServiceOCR;
+    delete invoice.OData__CopySource;
+    delete invoice.ServerRedirectedEmbedUri;
+    delete invoice.ServerRedirectedEmbedUrl;
+    delete invoice.SharedWithDetails;
+    delete invoice.AccountAmount1;
+    delete invoice.AuthorId;
+    delete invoice.Created;
+    //delete invoice.DocumentSetDescription;
+    delete invoice.EditorId;
+    delete invoice.FileSystemObjectType;
+    delete invoice.Modified;
+    delete invoice.OData__UIVersionString;
+    delete invoice.ScannedFileName;
+    delete invoice.Title;
+    delete invoice.saveSuccess;
+    delete invoice.OData__ip_UnifiedCompliancePolicyProperties;
+    delete invoice.MediaServiceImageTags;
+    delete invoice.Received_x0020_Approval_x0020_FromId;
+    delete invoice['odata.editLink'];
+    delete invoice['odata.etag'];
+    delete invoice['odata.id'];
+    delete invoice['odata.type'];
+
+    // Only delete Requires_x0020_Approval_x0020_FromId if the results property is missing. 
+    // If results property is missing that means this field has not been modified.
+    // if (invoice.Requires_x0020_Approval_x0020_FromId === null || !invoice.Requires_x0020_Approval_x0020_FromId.hasOwnProperty('results')) {
+    //   delete invoice.Requires_x0020_Approval_x0020_FromId;
+    // }
+    // if (invoice.Received_x0020_Approval_x0020_FromId === null || !invoice.Received_x0020_Approval_x0020_FromId.hasOwnProperty('results')) {
+    //   delete invoice.Received_x0020_Approval_x0020_FromId;
+    // }
+
+    return invoice;
+}
 //#endregion
