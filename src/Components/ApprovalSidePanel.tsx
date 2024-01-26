@@ -142,9 +142,16 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     options={options}
                     {...fieldRenderProps}
                     onChange={(e, option) => {
-                        console.log(option);
-                        debugger;
-                        fieldRenderProps.onChange({ value: [option?.key] })
+                        let currentValue = fieldRenderProps.value;
+                        if (option?.selected) {
+                            currentValue.push(option.key);
+                        } else {
+                            currentValue.splice(currentValue.indexOf(option?.key), 1);
+                        }
+
+                        console.log('final options:', currentValue);
+
+                        fieldRenderProps.onChange({ value: currentValue });
                     }}
                 />
             </div>
