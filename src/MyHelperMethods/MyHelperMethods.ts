@@ -81,6 +81,14 @@ export const CreateAccountCodeLineItem = async (value: IAccountCodeNewItem): Pro
     });
 }
 
+export const UpdateApprovalEmailTrackerLineItem = async (userEmail: string, invoiceTitle: string): Promise<void> => {
+    const currentTrackers = await getSP().web.lists.getByTitle(MyLists.ApprovalEmailTracker).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><And><Eq><FieldRef Name="Title"/><Value Type="Text">${invoiceTitle}</Value></Eq><Eq><FieldRef Name="ApproverEmail"/><Value Type="Text">${userEmail}</Value></Eq></And></Where></Query></View>` });
+    for (let index = 0; index < currentTrackers.length; index++) {
+        const element = currentTrackers[index];
+        getSP().web.lists.getByTitle(MyLists.ApprovalEmailTracker).items.getById(element.ID).update({ Approved: true });
+    }
+}
+
 export const SendDenyEmail = async (context: WebPartContext, invoiceNumber: string, denyUserEmail: string, invoiceTitle: string, denyComment: string): Promise<any> => {
     const workflowBody = {
         "InvoiceNumber": invoiceNumber,
@@ -97,7 +105,6 @@ export const SendDenyEmail = async (context: WebPartContext, invoiceNumber: stri
         headers: requestHeaders
     };
 
-    debugger;
     return await context.httpClient.post(DENY_WORKFLOW_URL, HttpClient.configurations.v1, httpClientOptions);
 }
 
