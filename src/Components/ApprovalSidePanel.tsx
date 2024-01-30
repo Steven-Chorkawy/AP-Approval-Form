@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, SendDenyEmail, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -436,6 +436,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     onClick={() => {
                                                         formRenderProps.onChange('Received_x0020_Deny_x0020_From_x0020_String', { value: `${this.state.APInvoice.Received_x0020_Deny_x0020_From_x0020_String}${this.state.currentUser.Email};` })
                                                         formRenderProps.onChange('OData__Status', { value: 'Received' });
+                                                        SendDenyEmail(this.props.context, this.state.APInvoice.Invoice_x0020_Number, this.state.currentUser.Email, this.state.APInvoice.Title, formRenderProps.valueGetter('DenyComment'))
                                                     }}
                                                 >Click to Save & Deny Invoice</PrimaryButton>
                                                 <br />

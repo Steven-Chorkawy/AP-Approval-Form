@@ -7,8 +7,12 @@ import "@pnp/sp/items";
 import { MyLists } from "../enums/MyLists";
 import { IAPInvoiceQueryItem } from "../interfaces/IAPInvoiceQueryItem";
 import { IAccountCodeNewItem, IAccountCodeQueryItem } from "../interfaces/IAccountCodeQueryItem";
+import { HttpClient, IHttpClientOptions } from '@microsoft/sp-http';
+
 
 let _sp: SPFI;
+
+const DENY_WORKFLOW_URL = "https://prod-02.canadacentral.logic.azure.com:443/workflows/d675bc40225a4e7a8bb257ba94c9106f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=H57-SJXbNldB0C4sYV7hWo2QP4FB-EJaMP0gMBn3XsM";
 
 export const getSP = (context?: WebPartContext): SPFI => {
     if (context) {
@@ -75,6 +79,26 @@ export const CreateAccountCodeLineItem = async (value: IAccountCodeNewItem): Pro
         InvoiceFolderIDId: value.InvoiceFolderIDId,
         StrInvoiceFolder: value.StrInvoiceFolder
     });
+}
+
+export const SendDenyEmail = async (context: WebPartContext, invoiceNumber: string, denyUserEmail: string, invoiceTitle: string, denyComment: string): Promise<any> => {
+    const workflowBody = {
+        "InvoiceNumber": invoiceNumber,
+        "UserEmail": denyUserEmail,
+        "Title": invoiceTitle,
+        "Comment": denyComment
+    };
+
+    const body: string = JSON.stringify(workflowBody);
+    const requestHeaders: Headers = new Headers();
+    requestHeaders.append("Content-type", "application/json");
+    const httpClientOptions: IHttpClientOptions = {
+        body: body,
+        headers: requestHeaders
+    };
+
+    debugger;
+    return await context.httpClient.post(DENY_WORKFLOW_URL, HttpClient.configurations.v1, httpClientOptions);
 }
 
 //#region Format
