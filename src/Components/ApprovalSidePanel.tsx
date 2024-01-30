@@ -435,6 +435,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     style={{ width: '50%', marginLeft: 'auto', marginRight: 'auto' }}
                                                     onClick={() => {
                                                         formRenderProps.onChange('Received_x0020_Deny_x0020_From_x0020_String', { value: `${this.state.APInvoice.Received_x0020_Deny_x0020_From_x0020_String}${this.state.currentUser.Email};` })
+                                                        formRenderProps.onChange('OData__Status', { value: 'Received' });
                                                     }}
                                                 >Click to Save & Deny Invoice</PrimaryButton>
                                                 <br />
