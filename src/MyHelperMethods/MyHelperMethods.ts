@@ -122,7 +122,7 @@ export const DeletePropertiesBeforeSave = (invoice: any): any => {
     delete invoice.Received_x0020_Approval_x0020_From;
     delete invoice.Requires_x0020_Approval_x0020_FromStringId;
     delete invoice.Received_x0020_Approval_x0020_FromStringId;
-    delete invoice.Received_x0020_Deny_x0020_From_x0020_String;
+    // delete invoice.Received_x0020_Deny_x0020_From_x0020_String;
     delete invoice.HiddenApproversId;
     delete invoice.HiddenApproversStringId;
     delete invoice.HiddenDepartmentId;
@@ -152,7 +152,7 @@ export const DeletePropertiesBeforeSave = (invoice: any): any => {
     delete invoice.saveSuccess;
     delete invoice.OData__ip_UnifiedCompliancePolicyProperties;
     delete invoice.MediaServiceImageTags;
-    delete invoice.Received_x0020_Approval_x0020_FromId;
+    // delete invoice.Received_x0020_Approval_x0020_FromId;
     delete invoice['odata.editLink'];
     delete invoice['odata.etag'];
     delete invoice['odata.id'];

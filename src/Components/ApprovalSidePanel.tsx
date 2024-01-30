@@ -12,6 +12,7 @@ import { PeoplePicker } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { IAccountCodeQueryItem } from '../interfaces/IAccountCodeQueryItem';
 import { IAPInvoiceFormItem } from '../interfaces/IAPInvoiceFormItem';
 import '@progress/kendo-theme-default/dist/all.css';
+import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -26,6 +27,7 @@ export interface IApprovalSidePanelState {
     APInvoice: IAPInvoiceFormItem;
     showApproveTextBox: boolean;
     showDenyTextBox: boolean;
+    currentUser: ISiteUserInfo;
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -130,6 +132,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 });
             }).catch(reason => console.error(reason));
         }).catch(reason => console.error(reason));
+
+        getSP().web.currentUser().then(user => { this.setState({ currentUser: user }) }).catch(reason => console.error(reason));
     }
 
     private _horizontalAlignment: Alignment = "space-between";
@@ -390,7 +394,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                         {
                                             this.state.showApproveTextBox &&
                                             <Stack>
-                                                <MessageBar messageBarType={MessageBarType.success} isMultiline={true}>
+                                                <MessageBar messageBarType={MessageBarType.success} isMultiline={true} style={{ width: '50%' }}>
                                                     <Field
                                                         name={"ApprovalNotes"}
                                                         component={TextField}
@@ -400,14 +404,20 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         label={"Comments (Optional)"}
                                                     />
                                                 </MessageBar>
-                                                <PrimaryButton iconProps={{ iconName: 'AcceptMedium' }} label='Click to Approve Invoice' type='submit'>Click to Approve Invoice</PrimaryButton>
+                                                <PrimaryButton
+                                                    iconProps={{ iconName: 'AcceptMedium' }}
+                                                    label='Click to Approve Invoice'
+                                                    type='submit'
+                                                    style={{ width: '50%', marginLeft: 'auto', marginRight: 'auto' }}
+                                                    onClick={() => formRenderProps.onChange('Received_x0020_Approval_x0020_FromId', { value: [...this.state.APInvoice.Received_x0020_Approval_x0020_FromId, this.state.currentUser.Id] })}
+                                                >Click to Save & Approve Invoice</PrimaryButton>
                                                 <br />
                                             </Stack>
                                         }
                                         {
                                             this.state.showDenyTextBox &&
                                             <Stack>
-                                                <MessageBar messageBarType={MessageBarType.error} isMultiline={true}>
+                                                <MessageBar messageBarType={MessageBarType.error} isMultiline={true} style={{ width: '50%' }}>
                                                     <Field
                                                         name={"DenyComment"}
                                                         component={TextField}
@@ -417,7 +427,16 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         label={"Why are you denying this invoice?"}
                                                     />
                                                 </MessageBar>
-                                                <PrimaryButton iconProps={{ iconName: 'CalculatorMultiply' }} label='Click to Deny Invoice' type='submit'>Click to Deny Invoice</PrimaryButton>
+                                                <div>Denied by: {formRenderProps.valueGetter('Received_x0020_Deny_x0020_From_x0020_String')}</div>
+                                                <PrimaryButton
+                                                    iconProps={{ iconName: 'CalculatorMultiply' }}
+                                                    label='Click to Deny Invoice'
+                                                    type='submit'
+                                                    style={{ width: '50%', marginLeft: 'auto', marginRight: 'auto' }}
+                                                    onClick={() => {
+                                                        formRenderProps.onChange('Received_x0020_Deny_x0020_From_x0020_String', { value: `${this.state.APInvoice.Received_x0020_Deny_x0020_From_x0020_String}${this.state.currentUser.Email};` })
+                                                    }}
+                                                >Click to Save & Deny Invoice</PrimaryButton>
                                                 <br />
                                             </Stack>
                                         }

@@ -24,8 +24,9 @@ export interface IAPInvoiceFormItem {
     Prices_x0020_OK: any;
     Purchasing: string;
     Received_x0020_Date: string;
-    Received_x0020_Approval_x0020_FromId: any;
+    Received_x0020_Approval_x0020_FromId: number[];
     Requires_x0020_Approval_x0020_FromId: number[];
+    Received_x0020_Deny_x0020_From_x0020_String: string; // Comma separated emails of users who have denied the current invoice.
     RequiresApprovalFromUserEmails?: string[];
     ScannedFileName: string;
     Title: string;
