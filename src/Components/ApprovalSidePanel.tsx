@@ -13,6 +13,7 @@ import { IAccountCodeQueryItem } from '../interfaces/IAccountCodeQueryItem';
 import { IAPInvoiceFormItem } from '../interfaces/IAPInvoiceFormItem';
 import '@progress/kendo-theme-default/dist/all.css';
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
+import { MyFormState } from '../enums/MyFormState';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -28,6 +29,7 @@ export interface IApprovalSidePanelState {
     showApproveTextBox: boolean;
     showDenyTextBox: boolean;
     currentUser: ISiteUserInfo;
+    formState: MyFormState;
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -128,7 +130,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         RequiresApprovalFromUserEmails: userEmails
                     },
                     showApproveTextBox: false,
-                    showDenyTextBox: false
+                    showDenyTextBox: false,
+                    formState: MyFormState.New
                 });
             }).catch(reason => console.error(reason));
         }).catch(reason => console.error(reason));
@@ -326,6 +329,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
+            this.setState({ formState: MyFormState.InProgress });
             try {
                 console.log('Form submit');
                 console.log(dataItem);
@@ -345,10 +349,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     await IsInvoiceApproved(this.props.invoice.ID);
                 }
 
+                this.setState({ formState: MyFormState.Complete });
                 this.props.onDismiss(); // close the side panel edit form.
             } catch (error) {
                 console.error(error);
                 alert('Failed to Save AP Invoice.  Please refresh and try again.');
+                this.setState({ formState: MyFormState.Failed });
             }
         }
 
@@ -361,6 +367,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             >
                 {this.state?.APInvoice ?
                     <div>
+                        {
+                            this.state.formState === MyFormState.InProgress &&
+                            <div>
+                                <ProgressIndicator label="Saving Invoice..." />
+                            </div>
+                        }
                         <Form
                             initialValues={{ ...this.state.APInvoice }}
                             onSubmit={handleSubmit}
@@ -377,6 +389,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         iconProps={{ iconName: 'CalculatorMultiply' }}
                                                         label='Deny'
                                                         onClick={() => this.setState({ showDenyTextBox: true, showApproveTextBox: false })}
+                                                        disabled={this.state.formState !== MyFormState.New}
                                                     >
                                                         Deny
                                                     </ActionButton>
@@ -384,10 +397,16 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         iconProps={{ iconName: 'AcceptMedium' }}
                                                         label='Approve'
                                                         onClick={() => this.setState({ showDenyTextBox: false, showApproveTextBox: true })}
+                                                        disabled={this.state.formState !== MyFormState.New}
                                                     >
                                                         Approve
                                                     </ActionButton>
-                                                    <PrimaryButton iconProps={{ iconName: 'Save' }} label='Save Changes' type='submit'>Save</PrimaryButton>
+                                                    <PrimaryButton
+                                                        iconProps={{ iconName: 'Save' }}
+                                                        label='Save Changes'
+                                                        type='submit'
+                                                        disabled={this.state.formState !== MyFormState.New || !formRenderProps.allowSubmit}
+                                                    >Save</PrimaryButton>
                                                 </Stack>
                                             </Stack.Item>
                                         </Stack>
@@ -410,6 +429,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     label='Click to Approve Invoice'
                                                     type='submit'
                                                     style={{ width: '50%', marginLeft: 'auto', marginRight: 'auto' }}
+                                                    disabled={this.state.formState !== MyFormState.New}
                                                     onClick={(e) => {
                                                         const newValue = this.state.APInvoice?.Received_x0020_Approval_x0020_FromId ? [...this.state.APInvoice?.Received_x0020_Approval_x0020_FromId, this.state.currentUser.Id] : [this.state.currentUser.Id];
                                                         formRenderProps.onChange('Received_x0020_Approval_x0020_FromId', { value: newValue });
@@ -438,6 +458,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     label='Click to Deny Invoice'
                                                     type='submit'
                                                     style={{ width: '50%', marginLeft: 'auto', marginRight: 'auto' }}
+                                                    disabled={this.state.formState !== MyFormState.New}
                                                     onClick={() => {
                                                         formRenderProps.onChange('Received_x0020_Deny_x0020_From_x0020_String', { value: `${this.state.APInvoice.Received_x0020_Deny_x0020_From_x0020_String}${this.state.currentUser.Email};` })
                                                         formRenderProps.onChange('OData__Status', { value: 'Received' });
