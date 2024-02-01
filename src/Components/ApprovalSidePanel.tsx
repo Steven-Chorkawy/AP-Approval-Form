@@ -310,6 +310,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     parentField: name,
                 }}
             >
+                <br/>
                 <Grid data={dataWithIndexes} dataItemKey={dataItemKey}>
                     <GridToolbar>
                         <DefaultButton
@@ -317,6 +318,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                             onClick={onAdd} iconProps={{ iconName: 'Add' }}>
                             Add New GL Code
                         </DefaultButton>
+                        <p>Please save the form after adding a new GL Account Code.</p>
                     </GridToolbar>
                     <GridColumn field="Title" title="Title" cell={this.NameCell} />
                     <GridColumn field="AmountIncludingTaxes" title="AmountIncludingTaxes" cell={this.NumberCell} />
@@ -452,7 +454,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         label={"Why are you denying this invoice?"}
                                                     />
                                                 </MessageBar>
-                                                <div>Denied by: {formRenderProps.valueGetter('Received_x0020_Deny_x0020_From_x0020_String')}</div>
                                                 <PrimaryButton
                                                     iconProps={{ iconName: 'CalculatorMultiply' }}
                                                     label='Click to Deny Invoice'
