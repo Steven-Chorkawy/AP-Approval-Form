@@ -125,6 +125,20 @@ export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => 
     return false;
 }
 
+export const SumAccountCodes = (accounts: IAccountCodeQueryItem[] | undefined): number => {
+    if (accounts === undefined) {
+        return 0;
+    }
+
+    let total: number = 0;
+    for (let index = 0; index < accounts.length; index++) {
+        const account: IAccountCodeQueryItem = accounts[index];
+        total += Number(account.AmountIncludingTaxes);
+    }
+
+    return total;
+}
+
 /**
  * Trigger a workflow that sends an email to the Purchasing department. 
  * https://make.powerautomate.com/environments/Default-2c663e0f-310e-40c2-a196-f341569885a9/flows/b3dadd3b-d312-4731-a60a-45538762cdbb/details
@@ -181,6 +195,7 @@ export const MyDateFormat2 = (i: string): string => {
  * @param invoice The invoice object from the form.
  */
 export const DeletePropertiesBeforeSave = (invoice: any): any => {
+    delete invoice.AmountAllocated;
     delete invoice.RequiresApprovalFromUserEmails;
     delete invoice.GLAccountCodes;
     delete invoice.Id;

@@ -5,6 +5,7 @@ import { IAccountCodeQueryItem } from "./IAccountCodeQueryItem";
  */
 export interface IAPInvoiceFormItem {
     Adds_x0020_OK: any;
+    AmountAllocated: number; // Custom field that is a sum of all the account code amounts.
     ApprovalNotes: string;
     Batch_x0020_Number: any;
     ChequeReturnedNotes: any;

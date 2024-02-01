@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -47,6 +47,10 @@ const FORM_DATA_INDEX = "formDataIndex";
 const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 const DisplayValue = (fieldRenderProps: FieldRenderProps): any => { return <>{fieldRenderProps.value}</>; };
 const CurrencyDisplay = (fieldRenderProps: FieldRenderProps): any => { return <>{FormatCurrency(fieldRenderProps.value)}</>; };
+const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => {
+    console.log(fieldRenderProps.name, fieldRenderProps.value);
+    return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />;
+}
 const minValidator = (value: any): any => (value >= 0 ? "" : "Minimum units 0");
 const requiredValidator = (value: any): any => (value ? "" : "The field is required");
 // Add a command cell to Edit, Update, Cancel and Delete an item
@@ -127,7 +131,8 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     APInvoice: {
                         ...this.props.invoice,
                         GLAccountCodes: value,
-                        RequiresApprovalFromUserEmails: userEmails
+                        RequiresApprovalFromUserEmails: userEmails,
+                        AmountAllocated: SumAccountCodes(value)
                     },
                     showApproveTextBox: false,
                     showDenyTextBox: false,
@@ -141,9 +146,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private _horizontalAlignment: Alignment = "space-between";
     private _formFieldStyle = { width: '30%' };
-    private _greyColor = 'rgb(204 204 204)';
-    private _blueColor = 'rgb(177 191 224)';
-    private _redColor = 'rgb(216 153 153)';
+    // private _greyColor = 'rgb(204 204 204)';
+    // private _blueColor = 'rgb(177 191 224)';
+    // private _redColor = 'rgb(216 153 153)';
 
     private DepartmentDropdown = (fieldRenderProps: FieldRenderProps): any => {
         const { options } = fieldRenderProps;
@@ -249,7 +254,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         StrInvoiceFolder: fieldArrayRenderProps.invoiceTitle
                     },
                 });
-
                 setEditIndex(0);
             },
             [fieldArrayRenderProps]
@@ -265,7 +269,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 fieldArrayRenderProps.onRemove({
                     index: dataItem[FORM_DATA_INDEX],
                 });
-
+                fieldArrayRenderProps.updateAmountAllocated();
                 setEditIndex(undefined);
             },
             [fieldArrayRenderProps]
@@ -286,13 +290,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
         // Save the changes
         const onSave = React.useCallback(() => {
+            fieldArrayRenderProps.updateAmountAllocated();
             setEditIndex(undefined);
         }, [fieldArrayRenderProps]);
-
-        // const myChange = React.useCallback((dataItem): any => {
-        //     // fieldArrayRenderProps.formOnChange(dataItem.fieldName, { value: dataItem.value });
-        //     fieldArrayRenderProps.
-        // }, []);
 
         const dataWithIndexes = fieldArrayRenderProps.value?.map((item: any, index: any): any => {
             return { ...item, [FORM_DATA_INDEX]: index };
@@ -309,7 +309,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     parentField: name,
                 }}
             >
-                <br/>
+                <br />
                 <Grid data={dataWithIndexes} dataItemKey={dataItemKey}>
                     <GridToolbar>
                         <DefaultButton
@@ -321,7 +321,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     </GridToolbar>
                     <GridColumn field="Title" title="Title" cell={this.NameCell} />
                     <GridColumn field="AmountIncludingTaxes" title="AmountIncludingTaxes" cell={this.NumberCell} />
-                    {/* <GridColumn field="PO_x0020_Line_x0020_Item_x0020__" title="PO Line Item #" cell={this.TextBoxCell} /> */}
                     <GridColumn cell={CommandCell} width={100} />
                 </Grid>
             </FormGridEditContext.Provider>
@@ -466,7 +465,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                 <br />
                                             </Stack>
                                         }
-                                        <div style={{ backgroundColor: this._greyColor }}>
+                                        <div>
                                             <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                                 <FieldWrapper style={this._formFieldStyle}>
                                                     <div className="k-form-field-wrap">
@@ -526,19 +525,24 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                             <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                                 <FieldWrapper>
                                                     <div className="k-form-field-wrap">
-                                                        (this field is not ready yet.)
                                                         <Field
-                                                            name={"Gross_x0020_Amount"}
-                                                            component={TextField}
+                                                            name={"AmountAllocated"}
+                                                            component={CurrencyTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Amount Allocated"}
                                                             disabled={true}
                                                         />
+                                                        {
+                                                            (formRenderProps.valueGetter('AmountAllocated') !== formRenderProps.valueGetter('Gross_x0020_Amount')) &&
+                                                            <MessageBar messageBarType={MessageBarType.warning} isMultiline={true}>
+                                                                The amount allocated ({FormatCurrency(formRenderProps.valueGetter('AmountAllocated'))}) does not equal invoice total ({FormatCurrency(formRenderProps.valueGetter('Gross_x0020_Amount'))})!
+                                                            </MessageBar>
+                                                        }
                                                     </div>
                                                 </FieldWrapper>
                                             </Stack>
                                         </div>
-                                        <div style={{ backgroundColor: this._blueColor }}>
+                                        <div>
                                             <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                                 <FieldWrapper style={this._formFieldStyle}>
                                                     <div className="k-form-field-wrap">
@@ -601,7 +605,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"Gross_x0020_Amount"}
-                                                            component={TextField}
+                                                            component={CurrencyTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Total (incl. tax)"}
                                                             disabled={true}
@@ -614,7 +618,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"Total_x0020_Tax_x0020_Amount"}
-                                                            component={TextField}
+                                                            component={CurrencyTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Total Tax Amount"}
                                                             disabled={true}
@@ -645,7 +649,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                 </FieldWrapper>
                                             </Stack>
                                         </div>
-                                        <div style={{ backgroundColor: this._redColor }}>
+                                        <div>
                                             <Stack horizontal horizontalAlign={this._horizontalAlignment}>
                                                 <FieldWrapper style={this._formFieldStyle}>
                                                     <div className="k-form-field-wrap">
@@ -687,6 +691,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     dataItemKey={DATA_ITEM_KEY}
                                                     invoiceID={formRenderProps.valueGetter('ID')}
                                                     invoiceTitle={formRenderProps.valueGetter('Title')}
+                                                    updateAmountAllocated={() => formRenderProps.onChange('AmountAllocated', { value: SumAccountCodes(formRenderProps.valueGetter('GLAccountCodes')) })}
                                                     component={this.FormGrid}
                                                 />
                                             </Stack>
