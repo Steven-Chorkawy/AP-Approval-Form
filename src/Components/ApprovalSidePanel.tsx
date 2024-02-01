@@ -256,6 +256,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const onRemove = React.useCallback(
             (dataItem) => {
                 if (dataItem.ID) {
+                    debugger;
                     // DeletePCardLineItem(dataItem.ID)
                     //     .then(value => {
                     //         fieldArrayRenderProps.onRemove({
@@ -269,13 +270,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     //         console.error(reason);
                     //     });
                 }
-                else {
-                    fieldArrayRenderProps.onRemove({
-                        index: dataItem[FORM_DATA_INDEX],
-                    });
 
-                    setEditIndex(undefined);
-                }
+                fieldArrayRenderProps.onRemove({
+                    index: dataItem[FORM_DATA_INDEX],
+                });
+
+                setEditIndex(undefined);
             },
             [fieldArrayRenderProps]
         );

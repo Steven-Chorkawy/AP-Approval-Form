@@ -100,8 +100,6 @@ export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => 
     const receivedApprovals = invoice.Received_x0020_Approval_x0020_FromId;
     const requiresApprovals = invoice.Requires_x0020_Approval_x0020_FromId;
 
-    console.log('invoice found:', invoice);
-    debugger;
     if (receivedApprovals === null) {
         return false;
     }
@@ -120,12 +118,11 @@ export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => 
         }
     }
 
-    debugger;
     if (isInvoiceApproved) {
         await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID).update({ "OData__Status": "Approved" });
         return true;
     }
-
+    
     return false;
 }
 
