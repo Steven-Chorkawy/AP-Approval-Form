@@ -158,7 +158,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
 
   public render(): React.ReactElement<IApApprovalFormProps> {
     return (
-      <div>
+      <div style={{ marginRight: '20px', marginLeft: '20px' }}>
         <Stack horizontal horizontalAlign="space-around">
           <Stack.Item grow={1}>
             <Dropdown

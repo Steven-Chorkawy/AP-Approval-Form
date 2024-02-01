@@ -531,7 +531,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         (this field is not ready yet.)
                                                         <Field
-                                                            name={"amountAllocated"}
+                                                            name={"Gross_x0020_Amount"}
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"Amount Allocated"}
