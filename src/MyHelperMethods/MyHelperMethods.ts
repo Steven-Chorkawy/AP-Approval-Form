@@ -90,6 +90,46 @@ export const UpdateApprovalEmailTrackerLineItem = async (userEmail: string, invo
 }
 
 /**
+ * Check to see if the current invoice has been approved by all users.
+ * The queried invoice will contain two list of user IDs. Received_x0020_Approval_x0020_FromId and Requires_x0020_Approval_x0020_FromId.  
+ * When all the values in both arrays are the same the invoice can be approved.
+ */
+export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => {
+    console.log('IsInvoiceApproved?', invoiceID);
+    const invoice = await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID)();
+    const receivedApprovals = invoice.Received_x0020_Approval_x0020_FromId;
+    const requiresApprovals = invoice.Requires_x0020_Approval_x0020_FromId;
+
+    console.log('invoice found:', invoice);
+    debugger;
+    if (receivedApprovals === null) {
+        return false;
+    }
+    if (requiresApprovals === null) {
+        return false;
+    }
+    if (requiresApprovals.length !== receivedApprovals.length) {
+        return false;
+    }
+
+    let isInvoiceApproved = true; // Initialize this variable to true.  The following for loop will set this to false if need be.
+    for (let index = 0; index < requiresApprovals.length; index++) {
+        const requiresApprovalID = requiresApprovals[index];
+        if (!receivedApprovals.includes(requiresApprovalID)) {
+            isInvoiceApproved = false;
+        }
+    }
+
+    debugger;
+    if (isInvoiceApproved) {
+        await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID).update({ "OData__Status": "Approved" });
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Trigger a workflow that sends an email to the Purchasing department. 
  * https://make.powerautomate.com/environments/Default-2c663e0f-310e-40c2-a196-f341569885a9/flows/b3dadd3b-d312-4731-a60a-45538762cdbb/details
  */

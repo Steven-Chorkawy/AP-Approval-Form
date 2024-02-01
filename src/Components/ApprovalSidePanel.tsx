@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, SendDenyEmail, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -349,6 +349,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             }
             const saveObj = DeletePropertiesBeforeSave(dataItem);
             await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
+
+            if (this.state.showApproveTextBox) {
+                // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
+                // No need to await this method.  It can run on it's own.
+                IsInvoiceApproved(this.props.invoice.ID);
+            }
         }
 
         return (
@@ -410,10 +416,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     type='submit'
                                                     style={{ width: '50%', marginLeft: 'auto', marginRight: 'auto' }}
                                                     onClick={(e) => {
-                                                        formRenderProps.onChange('Received_x0020_Approval_x0020_FromId', { value: [...this.state.APInvoice.Received_x0020_Approval_x0020_FromId, this.state.currentUser.Id] });
+                                                        const newValue = this.state.APInvoice?.Received_x0020_Approval_x0020_FromId ? [...this.state.APInvoice?.Received_x0020_Approval_x0020_FromId, this.state.currentUser.Id] : [this.state.currentUser.Id];
+                                                        formRenderProps.onChange('Received_x0020_Approval_x0020_FromId', { value: newValue });
                                                         UpdateApprovalEmailTrackerLineItem(this.state.currentUser.Email, this.state.APInvoice.Title);
-
-                                                        e.preventDefault(); // TODO: Remove this after testing CreateApprovalEmailTrackerLineItem method.
                                                     }}
                                                 >Click to Save & Approve Invoice</PrimaryButton>
                                                 <br />
