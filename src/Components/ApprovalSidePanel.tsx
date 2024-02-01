@@ -259,7 +259,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const onRemove = React.useCallback(
             (dataItem) => {
                 if (dataItem.ID) {
-                    debugger;
                     DeleteAccountCode(dataItem.ID); // No need to await.
                 }
 
@@ -333,8 +332,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
             try {
-                console.log('Form submit');
-                console.log(dataItem);
                 if (dataItem?.GLAccountCodes) {
                     for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
                         const accountCode = dataItem.GLAccountCodes[accountCodeIndex];

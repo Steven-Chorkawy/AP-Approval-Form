@@ -95,7 +95,6 @@ export const UpdateApprovalEmailTrackerLineItem = async (userEmail: string, invo
  * When all the values in both arrays are the same the invoice can be approved.
  */
 export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => {
-    console.log('IsInvoiceApproved?', invoiceID);
     const invoice = await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID)();
     const receivedApprovals = invoice.Received_x0020_Approval_x0020_FromId;
     const requiresApprovals = invoice.Requires_x0020_Approval_x0020_FromId;
