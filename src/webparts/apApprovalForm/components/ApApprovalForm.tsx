@@ -25,6 +25,10 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
       searchFilter: ""
     };
 
+    this._queryInvoices();
+  }
+
+  private _queryInvoices = (): void => {
     GetInvoiceByStatus('Awaiting Approval').then(invoices => {
       const defaultInvoices = invoices.filter(f => f.Requires_x0020_Approval_x0020_FromId?.indexOf(this.props.currentUser.Id) > -1);
       this.setState({
@@ -188,7 +192,10 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
           this.state.selectedRow &&
           <ApprovalSidePanel
             invoice={this.state.selectedRow}
-            onDismiss={() => { this.setState({ selectedRow: undefined }); }}
+            onDismiss={() => {
+              this.setState({ selectedRow: undefined });
+              this._queryInvoices();
+            }}
             context={this.props.context}
           />
         }

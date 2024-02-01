@@ -326,23 +326,29 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
-            console.log('Form submit');
-            console.log(dataItem);
-            if (dataItem?.GLAccountCodes) {
-                for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
-                    const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
-                    if (!accountCode.ID) {
-                        await CreateAccountCodeLineItem(accountCode);
+            try {
+                console.log('Form submit');
+                console.log(dataItem);
+                if (dataItem?.GLAccountCodes) {
+                    for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
+                        const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
+                        if (!accountCode.ID) {
+                            await CreateAccountCodeLineItem(accountCode);
+                        }
                     }
                 }
-            }
-            const saveObj = DeletePropertiesBeforeSave(dataItem);
-            await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
+                const saveObj = DeletePropertiesBeforeSave(dataItem);
+                await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
-            if (this.state.showApproveTextBox) {
-                // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
-                // No need to await this method.  It can run on it's own.
-                IsInvoiceApproved(this.props.invoice.ID);
+                if (this.state.showApproveTextBox) {
+                    // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
+                    await IsInvoiceApproved(this.props.invoice.ID);
+                }
+
+                this.props.onDismiss(); // close the side panel edit form.
+            } catch (error) {
+                console.error(error);
+                alert('Failed to Save AP Invoice.  Please refresh and try again.');
             }
         }
 
