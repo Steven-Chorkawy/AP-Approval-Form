@@ -122,7 +122,7 @@ export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => 
         await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID).update({ "OData__Status": "Approved" });
         return true;
     }
-    
+
     return false;
 }
 
@@ -240,5 +240,14 @@ export const DeletePropertiesBeforeSave = (invoice: any): any => {
     // }
 
     return invoice;
+}
+
+export const DeleteAccountCode = async (id: number): Promise<void> => {
+    try {
+        await getSP().web.lists.getByTitle(MyLists.InvoiceAccountCodes).items.getById(id).delete();
+    } catch (error) {
+        console.error(error);
+        alert('Failed to delete GL Account Code!  Please refresh this page and try again.');
+    }
 }
 //#endregion

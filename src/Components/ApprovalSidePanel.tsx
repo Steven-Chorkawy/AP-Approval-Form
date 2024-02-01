@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -257,18 +257,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             (dataItem) => {
                 if (dataItem.ID) {
                     debugger;
-                    // DeletePCardLineItem(dataItem.ID)
-                    //     .then(value => {
-                    //         fieldArrayRenderProps.onRemove({
-                    //             index: dataItem[FORM_DATA_INDEX],
-                    //         });
-
-                    //         setEditIndex(undefined);
-                    //     })
-                    //     .catch(reason => {
-                    //         alert('Failed to Delete Line Item!');
-                    //         console.error(reason);
-                    //     });
+                    DeleteAccountCode(dataItem.ID); // No need to await.
                 }
 
                 fieldArrayRenderProps.onRemove({
