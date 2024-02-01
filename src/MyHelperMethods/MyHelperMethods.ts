@@ -89,6 +89,10 @@ export const UpdateApprovalEmailTrackerLineItem = async (userEmail: string, invo
     }
 }
 
+/**
+ * Trigger a workflow that sends an email to the Purchasing department. 
+ * https://make.powerautomate.com/environments/Default-2c663e0f-310e-40c2-a196-f341569885a9/flows/b3dadd3b-d312-4731-a60a-45538762cdbb/details
+ */
 export const SendDenyEmail = async (context: WebPartContext, invoiceNumber: string, denyUserEmail: string, invoiceTitle: string, denyComment: string): Promise<any> => {
     const workflowBody = {
         "InvoiceNumber": invoiceNumber,
