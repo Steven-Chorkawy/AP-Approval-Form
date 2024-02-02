@@ -118,7 +118,7 @@ export const IsInvoiceApproved = async (invoiceID: number): Promise<boolean> => 
     }
 
     if (isInvoiceApproved) {
-        await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID).update({ "OData__Status": "Approved" });
+        await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(invoiceID).update({ "OData__Status": "Approved", "IsApproved": true });
         return true;
     }
 
