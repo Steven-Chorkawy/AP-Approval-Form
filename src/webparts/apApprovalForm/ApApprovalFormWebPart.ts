@@ -7,7 +7,6 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
-
 import * as strings from 'ApApprovalFormWebPartStrings';
 import ApApprovalForm from './components/ApApprovalForm';
 import { IApApprovalFormProps } from './components/IApApprovalFormProps';
@@ -19,15 +18,18 @@ export interface IApApprovalFormWebPartProps {
 
 export default class ApApprovalFormWebPart extends BaseClientSideWebPart<IApApprovalFormWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<IApApprovalFormProps> = React.createElement(
-      ApApprovalForm,
-      {
-        description: this.properties.description,
-        context: this.context
-      }
-    );
+    getSP().web.currentUser().then(currentUser => {
+      const element: React.ReactElement<IApApprovalFormProps> = React.createElement(
+        ApApprovalForm,
+        {
+          description: this.properties.description,
+          context: this.context,
+          currentUser: currentUser
+        }
+      );
 
-    ReactDom.render(element, this.domElement);
+      ReactDom.render(element, this.domElement);
+    }).catch(reason => console.error(reason));
   }
 
   protected onInit(): Promise<void> {
@@ -41,9 +43,7 @@ export default class ApApprovalFormWebPart extends BaseClientSideWebPart<IApAppr
       return;
     }
 
-    const {
-      semanticColors
-    } = currentTheme;
+    const { semanticColors } = currentTheme;
 
     if (semanticColors) {
       this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
