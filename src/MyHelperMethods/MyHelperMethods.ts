@@ -49,6 +49,9 @@ export const GetAccountCodes = async (folderName: string): Promise<IAccountCodeQ
 
 export const GetUserEmails = async (userIDs: number[]): Promise<string[]> => {
     const output: string[] = [];
+    if (!userIDs)
+        return output;
+
     for (let approverIDIndex = 0; approverIDIndex < userIDs.length; approverIDIndex++) {
         const user = await getSP().web.getUserById(userIDs[approverIDIndex])();
         output.push(user.Email);
