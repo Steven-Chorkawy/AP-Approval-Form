@@ -246,15 +246,16 @@ export const DeletePropertiesBeforeSave = (invoice: any): any => {
     delete invoice['odata.etag'];
     delete invoice['odata.id'];
     delete invoice['odata.type'];
+    
 
     // Only delete Requires_x0020_Approval_x0020_FromId if the results property is missing. 
     // If results property is missing that means this field has not been modified.
-    // if (invoice.Requires_x0020_Approval_x0020_FromId === null || !invoice.Requires_x0020_Approval_x0020_FromId.hasOwnProperty('results')) {
-    //   delete invoice.Requires_x0020_Approval_x0020_FromId;
-    // }
-    // if (invoice.Received_x0020_Approval_x0020_FromId === null || !invoice.Received_x0020_Approval_x0020_FromId.hasOwnProperty('results')) {
-    //   delete invoice.Received_x0020_Approval_x0020_FromId;
-    // }
+    if (invoice.Requires_x0020_Approval_x0020_FromId === null) {
+      delete invoice.Requires_x0020_Approval_x0020_FromId;
+    }
+    if (invoice.Received_x0020_Approval_x0020_FromId === null) {
+      delete invoice.Received_x0020_Approval_x0020_FromId;
+    }
 
     return invoice;
 }

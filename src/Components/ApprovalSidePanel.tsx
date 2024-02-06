@@ -340,6 +340,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     }
                 }
                 const saveObj = DeletePropertiesBeforeSave(dataItem);
+                
                 await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
                 if (this.state.showApproveTextBox) {
@@ -351,6 +352,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 this.props.onDismiss(); // close the side panel edit form.
             } catch (error) {
                 console.error(error);
+                debugger;
                 alert('Failed to Save AP Invoice.  Please refresh and try again.');
                 this.setState({ formState: MyFormState.Failed });
             }
