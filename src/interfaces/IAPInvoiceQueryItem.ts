@@ -31,6 +31,7 @@ export interface IAPInvoiceQueryItem {
     Purchasing: string;
     Received_x0020_Date: string;
     Received_x0020_Approval_x0020_FromId: any;
+    Requires_x0020_Approval_x0020_From: string;
     Requires_x0020_Approval_x0020_FromId: number[];
     Received_x0020_Deny_x0020_From_x0020_String: string;
     ScannedFileName: string;
