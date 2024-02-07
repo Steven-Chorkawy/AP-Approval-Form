@@ -193,7 +193,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
           </Stack.Item>
         </Stack>
         <Stack horizontal horizontalAlign="space-evenly" style={{ marginTop: '5px' }}>
-          <DefaultButton text='View All Invoices' href='https://claringtonnet.sharepoint.com/sites/Finance/Invoices/Forms/All.aspx' target='_blank' rel='noreferrer' />
+          <DefaultButton text='View All Invoices' href='https://claringtonnet.sharepoint.com/sites/Finance/Invoices/Forms/All.aspx' target='_blank' data-interception="off" />
         </Stack>
         <hr />
         <DetailsList

@@ -381,7 +381,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                     <FormElement>
                                         <Stack horizontal horizontalAlign="space-evenly">
                                             <Stack.Item grow={4}>
-                                                <DefaultButton style={{ width: '100%' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/${this.props.invoice.Title}`} target='_blank' rel='noreferrer' >View Files</DefaultButton>
+                                                <DefaultButton style={{ width: '100%' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/${this.props.invoice.Title}`} target='_blank' data-interception="off">View Files</DefaultButton>
                                             </Stack.Item>
                                             <Stack.Item grow={4}>
                                                 <Stack horizontal horizontalAlign="space-evenly">
