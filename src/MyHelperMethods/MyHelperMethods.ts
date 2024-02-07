@@ -8,6 +8,7 @@ import { MyLists } from "../enums/MyLists";
 import { IAPInvoiceQueryItem } from "../interfaces/IAPInvoiceQueryItem";
 import { IAccountCodeNewItem, IAccountCodeQueryItem } from "../interfaces/IAccountCodeQueryItem";
 import { HttpClient, IHttpClientOptions } from '@microsoft/sp-http';
+import { ISiteUser } from "@pnp/sp/site-users/types";
 
 
 let _sp: SPFI;
@@ -22,7 +23,17 @@ export const getSP = (context?: WebPartContext): SPFI => {
 };
 
 export const GetInvoiceByStatus = async (status: string): Promise<IAPInvoiceQueryItem[]> => {
-    const output = await getSP().web.lists.getByTitle(MyLists.Invoices).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><Eq><FieldRef Name="_Status"/><Value Type="Choice">${status}</Value></Eq></Where></Query></View>` });
+    let output = await getSP().web.lists.getByTitle(MyLists.Invoices).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><Eq><FieldRef Name="_Status"/><Value Type="Choice">${status}</Value></Eq></Where></Query></View>` }, 'FieldValuesAsText');
+
+    for (let index = 0; index < output.length; index++) {
+        const invoice = output[index];
+        output[index].Requires_x0020_Approval_x0020_From = invoice.FieldValuesAsText.Requires_x005f_x0020_x005f_Approval_x005f_x0020_x005f_From;
+        delete output[index].FieldValuesAsText;
+    }
+
+    console.log('Invoices Found');
+    console.log(output);
+    debugger;
     return output;
 }
 
@@ -57,6 +68,10 @@ export const GetUserEmails = async (userIDs: number[]): Promise<string[]> => {
         output.push(user.Email);
     }
     return output;
+}
+
+export const GetUserByID = async (userID: number): Promise<ISiteUser> => {
+    return await getSP().web.getUserById(userID)();
 }
 
 export const GetUserByLoginName = async (input: any[]): Promise<number[]> => {
@@ -246,15 +261,15 @@ export const DeletePropertiesBeforeSave = (invoice: any): any => {
     delete invoice['odata.etag'];
     delete invoice['odata.id'];
     delete invoice['odata.type'];
-    
+
 
     // Only delete Requires_x0020_Approval_x0020_FromId if the results property is missing. 
     // If results property is missing that means this field has not been modified.
     if (invoice.Requires_x0020_Approval_x0020_FromId === null) {
-      delete invoice.Requires_x0020_Approval_x0020_FromId;
+        delete invoice.Requires_x0020_Approval_x0020_FromId;
     }
     if (invoice.Received_x0020_Approval_x0020_FromId === null) {
-      delete invoice.Received_x0020_Approval_x0020_FromId;
+        delete invoice.Received_x0020_Approval_x0020_FromId;
     }
 
     return invoice;

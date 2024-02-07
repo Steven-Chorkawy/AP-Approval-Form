@@ -57,6 +57,17 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         }
       },
       {
+        key: 'RequiresApprovalFrom',
+        name: 'Requires Approval From',
+        fieldName: 'Requires_x0020_Approval_x0020_FromId',
+        minWidth: 200,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: (item: IAPInvoiceQueryItem) => {
+          return (<span title={item.Requires_x0020_Approval_x0020_From}>{item.Requires_x0020_Approval_x0020_From}</span>);
+        }
+      },
+      {
         key: 'Vendor_x0020_Name',
         name: 'Vendor Name',
         fieldName: 'Vendor_x0020_Name',
