@@ -30,10 +30,6 @@ export const GetInvoiceByStatus = async (status: string): Promise<IAPInvoiceQuer
         output[index].Requires_x0020_Approval_x0020_From = invoice.FieldValuesAsText.Requires_x005f_x0020_x005f_Approval_x005f_x0020_x005f_From;
         delete output[index].FieldValuesAsText;
     }
-
-    console.log('Invoices Found');
-    console.log(output);
-    debugger;
     return output;
 }
 
@@ -261,7 +257,8 @@ export const DeletePropertiesBeforeSave = (invoice: any): any => {
     delete invoice['odata.etag'];
     delete invoice['odata.id'];
     delete invoice['odata.type'];
-
+    delete invoice.FieldValuesAsText;
+    delete invoice['FieldValuesAsText@odata.navigationLinkUrl'];
 
     // Only delete Requires_x0020_Approval_x0020_FromId if the results property is missing. 
     // If results property is missing that means this field has not been modified.

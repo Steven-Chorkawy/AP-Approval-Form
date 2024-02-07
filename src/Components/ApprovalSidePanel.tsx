@@ -48,7 +48,6 @@ const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 const DisplayValue = (fieldRenderProps: FieldRenderProps): any => { return <>{fieldRenderProps.value}</>; };
 const CurrencyDisplay = (fieldRenderProps: FieldRenderProps): any => { return <>{FormatCurrency(fieldRenderProps.value)}</>; };
 const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => {
-    console.log(fieldRenderProps.name, fieldRenderProps.value);
     return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />;
 }
 const minValidator = (value: any): any => (value >= 0 ? "" : "Minimum units 0");
@@ -340,6 +339,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     }
                 }
                 const saveObj = DeletePropertiesBeforeSave(dataItem);
+                debugger;
                 
                 await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
