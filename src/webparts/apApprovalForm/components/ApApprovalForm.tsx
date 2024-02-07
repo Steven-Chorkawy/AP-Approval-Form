@@ -9,6 +9,7 @@ import { IApApprovalFormState } from './IApApprovalFormState';
 import { IAPInvoiceQueryItem } from '../../../interfaces/IAPInvoiceQueryItem';
 import { filterBy } from '@progress/kendo-data-query';
 import ApprovalSidePanel from '../../../Components/ApprovalSidePanel';
+import PackageSolutionVersion from '../../../Components/PackageSolutionVersion';
 
 
 export default class ApApprovalForm extends React.Component<IApApprovalFormProps, IApApprovalFormState> {
@@ -29,17 +30,19 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
   }
 
   private _queryInvoices = (): void => {
+    console.log()
     GetInvoiceByStatus('Awaiting Approval').then(invoices => {
       const defaultInvoices = invoices.filter(f => f.Requires_x0020_Approval_x0020_FromId?.indexOf(this.props.currentUser.Id) > -1);
       this.setState({
         awaitingApprovalInvoices: invoices,
         yourInvoices: defaultInvoices,
-        showTheseInvoices: defaultInvoices
       });
+      this._applySearchFilter();
     }).catch(reason => console.error(reason));
 
     GetInvoiceByStatus('Approved').then(invoices => {
       this.setState({ approvedInvoices: invoices });
+      this._applySearchFilter();
     }).catch(reason => console.error(reason));
   }
 
@@ -169,7 +172,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
 
   public render(): React.ReactElement<IApApprovalFormProps> {
     return (
-      <div style={{ marginRight: '20px', marginLeft: '20px' }}>
+      <div style={{ marginRight: '20px', marginLeft: '20px' }} >
         <Stack horizontal horizontalAlign="space-around">
           <Stack.Item grow={1}>
             <Dropdown
@@ -210,8 +213,9 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
             context={this.props.context}
           />
         }
-
-      </div>
+        <br />
+        <PackageSolutionVersion />
+      </div >
     );
   }
 }
