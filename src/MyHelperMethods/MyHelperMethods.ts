@@ -178,10 +178,12 @@ export const SendDenyEmail = async (context: WebPartContext, invoiceNumber: stri
 
 //#region Format
 export const FormatCurrency = (i: number): string => {
-    if (i)
+    if (!isNaN(i) && i !== null) {
         return i.toLocaleString('en-US', { style: 'currency', currency: 'USD', });
-    else
-        return 'Bad Number!';
+    }
+    else {
+        return '';  // Return empty string on null because null != 0.
+    }   
 }
 
 /**
