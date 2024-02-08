@@ -4,16 +4,19 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
 import { PeoplePicker } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+import "@pnp/sp/folders";
+import "@pnp/sp/files/folder";
 import { IAccountCodeQueryItem } from '../interfaces/IAccountCodeQueryItem';
 import { IAPInvoiceFormItem } from '../interfaces/IAPInvoiceFormItem';
 import '@progress/kendo-theme-default/dist/all.css';
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 import { MyFormState } from '../enums/MyFormState';
+import { IFileInfo } from '@pnp/sp/files/types';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -30,6 +33,7 @@ export interface IApprovalSidePanelState {
     showDenyTextBox: boolean;
     currentUser: ISiteUserInfo;
     formState: MyFormState;
+    singlePDF: IFileInfo; // A preview of the single PDF file if there is only one available. 
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -47,10 +51,8 @@ const FORM_DATA_INDEX = "formDataIndex";
 const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 const DisplayValue = (fieldRenderProps: FieldRenderProps): any => { return <>{fieldRenderProps.value}</>; };
 const CurrencyDisplay = (fieldRenderProps: FieldRenderProps): any => { return <>{FormatCurrency(fieldRenderProps.value)}</>; };
-const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => {
-    return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />;
-}
-const minValidator = (value: any): any => (value >= 0 ? "" : "Minimum units 0");
+const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => { return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />; }
+const DisplayDateTextBox = (fieldRenderProps: FieldRenderProps): any => { return <TextField {...fieldRenderProps} value={MyDateFormat2(fieldRenderProps.value)} />; }
 const requiredValidator = (value: any): any => (value ? "" : "The field is required");
 // Add a command cell to Edit, Update, Cancel and Delete an item
 const CommandCell = (props: GridCellProps): any => {
@@ -141,13 +143,17 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         }).catch(reason => console.error(reason));
 
         getSP().web.currentUser().then(user => { this.setState({ currentUser: user }) }).catch(reason => console.error(reason));
+
+        // Check to see if a single PDF is present.  If there is only one PDF add a link directly to that file.
+        getSP().web.getFolderByServerRelativePath(`Invoices/${this.props.invoice.Title}`).files().then((files: IFileInfo[]) => {
+            const PDFs_FOUND = files.filter((f) => f.Name.indexOf('.pdf') !== -1);
+            if (PDFs_FOUND.length === 1)
+                this.setState({ singlePDF: PDFs_FOUND[0] });
+        }).catch(reason => console.error(reason));
     }
 
     private _horizontalAlignment: Alignment = "space-between";
     private _formFieldStyle = { width: '30%' };
-    // private _greyColor = 'rgb(204 204 204)';
-    // private _blueColor = 'rgb(177 191 224)';
-    // private _redColor = 'rgb(216 153 153)';
 
     private DepartmentDropdown = (fieldRenderProps: FieldRenderProps): any => {
         const { options } = fieldRenderProps;
@@ -177,11 +183,21 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             <div>
                 <SpinButton
                     {...others}
-                    label='AmountIncludingTaxes'
+                    label='Amount Including Taxes'
                     labelPosition={Position.top}
-                    onChange={(event: any, newValue: string) => {
-                        fieldRenderProps.onChange({ value: newValue })
-                        // myChange({ value: Number(newValue), fieldName: 'AmountIncludingTaxes' });
+                    onChange={(event: any, newValue: string) => fieldRenderProps.onChange({ value: newValue })}
+                    onValidate={(value: string, event: any) => {
+                        let parsedValue = value.replace(/[^\d.-]/g, '') // strip all non numeric characters excluding decimals. https://stackoverflow.com/a/9409894
+                        if (!isNaN(Number(parsedValue)) && parsedValue !== "") {
+                            return parsedValue;
+                        }
+                        else if (parsedValue === "" && value === "") {
+                            // if both parsed and input value are "" this probably means the user cleared the field. Instead of prompting the user with an error just set the value to 0. 
+                            return "0";
+                        }
+                        else if (parsedValue === null || parsedValue === "") {
+                            alert(`'${value}' is not a valid input.  Please try again.`);
+                        }
                     }}
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
@@ -198,7 +214,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 <Field
                     component={isInEdit ? this.NumericTextBoxWithValidation : CurrencyDisplay}
                     name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
-                    validator={minValidator}
                 />
             </td>
         );
@@ -218,6 +233,20 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             </div>
         );
     };
+
+    private TextFieldCell = (props: GridCellProps): any => {
+        const { parentField, editIndex } = React.useContext(FormGridEditContext);
+        const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
+        return (
+            <td>
+                <Field
+                    label="PO Line Item #"
+                    component={isInEdit ? TextField : DisplayValue}
+                    name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
+                />
+            </td>
+        );
+    }
 
     private NameCell = (props: GridCellProps): any => {
         const { parentField, editIndex } = React.useContext(FormGridEditContext);
@@ -303,7 +332,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     onCancel,
                     onRemove,
                     onSave,
-                    // myChange,
                     editIndex,
                     parentField: name,
                 }}
@@ -318,8 +346,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         </DefaultButton>
                         <p>Please save the form after adding a new GL Account Code.</p>
                     </GridToolbar>
-                    <GridColumn field="Title" title="Title" cell={this.NameCell} />
-                    <GridColumn field="AmountIncludingTaxes" title="AmountIncludingTaxes" cell={this.NumberCell} />
+                    <GridColumn field="Title" title="Account Code" cell={this.NameCell} />
+                    <GridColumn field="AmountIncludingTaxes" title="Amount Including Taxes" cell={this.NumberCell} />
+                    <GridColumn field="PO_x0020_Line_x0020_Item_x0020__" title="PO Line Item #" cell={this.TextFieldCell} />
                     <GridColumn cell={CommandCell} width={100} />
                 </Grid>
             </FormGridEditContext.Provider>
@@ -340,7 +369,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 }
                 const saveObj = DeletePropertiesBeforeSave(dataItem);
                 debugger;
-                
+
                 await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
                 if (this.state.showApproveTextBox) {
@@ -381,7 +410,11 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                     <FormElement>
                                         <Stack horizontal horizontalAlign="space-evenly">
                                             <Stack.Item grow={4}>
-                                                <DefaultButton style={{ width: '100%' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/${this.props.invoice.Title}`} target='_blank' data-interception="off">View Files</DefaultButton>
+                                                <DefaultButton style={{ width: '100%' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/${this.props.invoice.Title}`} target='_blank' data-interception="off">View All Files</DefaultButton>
+                                                {
+                                                    this.state.singlePDF &&
+                                                    <DefaultButton style={{ width: '100%', marginTop: '5px' }} href={`${this.state.singlePDF.ServerRelativeUrl}`} target='_blank' data-interception="off">View {this.state.singlePDF.Name}</DefaultButton>
+                                                }
                                             </Stack.Item>
                                             <Stack.Item grow={4}>
                                                 <Stack horizontal horizontalAlign="space-evenly">
@@ -585,7 +618,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"Invoice_x0020_Date"}
-                                                            component={TextField}
+                                                            component={DisplayDateTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Date"}
                                                             disabled={true}
@@ -596,7 +629,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"Received_x0020_Date"}
-                                                            component={TextField}
+                                                            component={DisplayDateTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Received Date"}
                                                             disabled={true}
