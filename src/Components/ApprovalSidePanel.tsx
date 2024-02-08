@@ -9,11 +9,14 @@ import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
 import { PeoplePicker } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+import "@pnp/sp/folders";
+import "@pnp/sp/files/folder";
 import { IAccountCodeQueryItem } from '../interfaces/IAccountCodeQueryItem';
 import { IAPInvoiceFormItem } from '../interfaces/IAPInvoiceFormItem';
 import '@progress/kendo-theme-default/dist/all.css';
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 import { MyFormState } from '../enums/MyFormState';
+import { IFileInfo } from '@pnp/sp/files/types';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -30,6 +33,7 @@ export interface IApprovalSidePanelState {
     showDenyTextBox: boolean;
     currentUser: ISiteUserInfo;
     formState: MyFormState;
+    singlePDF: IFileInfo; // A preview of the single PDF file if there is only one available. 
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -139,6 +143,13 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         }).catch(reason => console.error(reason));
 
         getSP().web.currentUser().then(user => { this.setState({ currentUser: user }) }).catch(reason => console.error(reason));
+
+        // Check to see if a single PDF is present.  If there is only one PDF add a link directly to that file.
+        getSP().web.getFolderByServerRelativePath(`Invoices/${this.props.invoice.Title}`).files().then((files: IFileInfo[]) => {
+            const PDFs_FOUND = files.filter((f) => f.Name.indexOf('.pdf') !== -1);
+            if (PDFs_FOUND.length === 1)
+                this.setState({ singlePDF: PDFs_FOUND[0] });
+        }).catch(reason => console.error(reason));
     }
 
     private _horizontalAlignment: Alignment = "space-between";
@@ -399,7 +410,11 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                     <FormElement>
                                         <Stack horizontal horizontalAlign="space-evenly">
                                             <Stack.Item grow={4}>
-                                                <DefaultButton style={{ width: '100%' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/${this.props.invoice.Title}`} target='_blank' data-interception="off">View Files</DefaultButton>
+                                                <DefaultButton style={{ width: '100%' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/${this.props.invoice.Title}`} target='_blank' data-interception="off">View All Files</DefaultButton>
+                                                {
+                                                    this.state.singlePDF &&
+                                                    <DefaultButton style={{ width: '100%', marginTop: '5px' }} href={`${this.state.singlePDF.ServerRelativeUrl}`} target='_blank' data-interception="off">View {this.state.singlePDF.Name}</DefaultButton>
+                                                }
                                             </Stack.Item>
                                             <Stack.Item grow={4}>
                                                 <Stack horizontal horizontalAlign="space-evenly">
