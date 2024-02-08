@@ -183,7 +183,7 @@ export const FormatCurrency = (i: number): string => {
     }
     else {
         return '';  // Return empty string on null because null != 0.
-    }   
+    }
 }
 
 /**
@@ -193,6 +193,8 @@ export const FormatCurrency = (i: number): string => {
  * @returns Formatted date as a string.
  */
 export const MyDateFormat1 = (i: string): string => {
+    if (i === null)
+        return '';
     return new Date(i).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
@@ -203,7 +205,9 @@ export const MyDateFormat1 = (i: string): string => {
  * @returns Formatted date as a string.
  */
 export const MyDateFormat2 = (i: string): string => {
-    return new Date(i).toISOString().slice(0, 10);
+    if (i === null)
+        return '';
+    return new Date(i).toISOString().slice(0, 10);;
 }
 
 /**

@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -48,6 +48,7 @@ const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 const DisplayValue = (fieldRenderProps: FieldRenderProps): any => { return <>{fieldRenderProps.value}</>; };
 const CurrencyDisplay = (fieldRenderProps: FieldRenderProps): any => { return <>{FormatCurrency(fieldRenderProps.value)}</>; };
 const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => { return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />; }
+const DisplayDateTextBox = (fieldRenderProps: FieldRenderProps): any => { return <TextField {...fieldRenderProps} value={MyDateFormat2(fieldRenderProps.value)} />; }
 const requiredValidator = (value: any): any => (value ? "" : "The field is required");
 // Add a command cell to Edit, Update, Cancel and Delete an item
 const CommandCell = (props: GridCellProps): any => {
@@ -602,7 +603,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"Invoice_x0020_Date"}
-                                                            component={TextField}
+                                                            component={DisplayDateTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Date"}
                                                             disabled={true}
@@ -613,7 +614,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     <div className="k-form-field-wrap">
                                                         <Field
                                                             name={"Received_x0020_Date"}
-                                                            component={TextField}
+                                                            component={DisplayDateTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Received Date"}
                                                             disabled={true}
