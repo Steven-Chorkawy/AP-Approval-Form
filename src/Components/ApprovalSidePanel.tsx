@@ -47,9 +47,7 @@ const FORM_DATA_INDEX = "formDataIndex";
 const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 const DisplayValue = (fieldRenderProps: FieldRenderProps): any => { return <>{fieldRenderProps.value}</>; };
 const CurrencyDisplay = (fieldRenderProps: FieldRenderProps): any => { return <>{FormatCurrency(fieldRenderProps.value)}</>; };
-const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => {
-    return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />;
-}
+const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => { return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />; }
 const minValidator = (value: any): any => (value >= 0 ? "" : "Minimum units 0");
 const requiredValidator = (value: any): any => (value ? "" : "The field is required");
 // Add a command cell to Edit, Update, Cancel and Delete an item
@@ -145,9 +143,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private _horizontalAlignment: Alignment = "space-between";
     private _formFieldStyle = { width: '30%' };
-    // private _greyColor = 'rgb(204 204 204)';
-    // private _blueColor = 'rgb(177 191 224)';
-    // private _redColor = 'rgb(216 153 153)';
 
     private DepartmentDropdown = (fieldRenderProps: FieldRenderProps): any => {
         const { options } = fieldRenderProps;
@@ -177,7 +172,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             <div>
                 <SpinButton
                     {...others}
-                    label='AmountIncludingTaxes'
+                    label='Amount Including Taxes'
                     labelPosition={Position.top}
                     onChange={(event: any, newValue: string) => {
                         fieldRenderProps.onChange({ value: newValue })
@@ -218,6 +213,20 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             </div>
         );
     };
+
+    private TextFieldCell = (props: GridCellProps): any => {
+        const { parentField, editIndex } = React.useContext(FormGridEditContext);
+        const isInEdit = props.dataItem[FORM_DATA_INDEX] === editIndex;
+        return (
+            <td>
+                <Field
+                    label="PO Line Item #"
+                    component={isInEdit ? TextField : DisplayValue}
+                    name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
+                />
+            </td>
+        );
+    }
 
     private NameCell = (props: GridCellProps): any => {
         const { parentField, editIndex } = React.useContext(FormGridEditContext);
@@ -318,8 +327,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                         </DefaultButton>
                         <p>Please save the form after adding a new GL Account Code.</p>
                     </GridToolbar>
-                    <GridColumn field="Title" title="Title" cell={this.NameCell} />
-                    <GridColumn field="AmountIncludingTaxes" title="AmountIncludingTaxes" cell={this.NumberCell} />
+                    <GridColumn field="Title" title="Account Code" cell={this.NameCell} />
+                    <GridColumn field="AmountIncludingTaxes" title="Amount Including Taxes" cell={this.NumberCell} />
+                    <GridColumn field="PO_x0020_Line_x0020_Item_x0020__" title="PO Line Item #" cell={this.TextFieldCell} />
                     <GridColumn cell={CommandCell} width={100} />
                 </Grid>
             </FormGridEditContext.Provider>
@@ -340,7 +350,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 }
                 const saveObj = DeletePropertiesBeforeSave(dataItem);
                 debugger;
-                
+
                 await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
                 if (this.state.showApproveTextBox) {
