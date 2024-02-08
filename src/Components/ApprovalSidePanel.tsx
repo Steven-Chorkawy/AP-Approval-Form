@@ -48,7 +48,6 @@ const DATA_ITEM_KEY = "GLAccountCodeDataItemKey";
 const DisplayValue = (fieldRenderProps: FieldRenderProps): any => { return <>{fieldRenderProps.value}</>; };
 const CurrencyDisplay = (fieldRenderProps: FieldRenderProps): any => { return <>{FormatCurrency(fieldRenderProps.value)}</>; };
 const CurrencyTextBox = (fieldRenderProps: FieldRenderProps): any => { return <TextField {...fieldRenderProps} value={FormatCurrency(fieldRenderProps.value)} />; }
-const minValidator = (value: any): any => (value >= 0 ? "" : "Minimum units 0");
 const requiredValidator = (value: any): any => (value ? "" : "The field is required");
 // Add a command cell to Edit, Update, Cancel and Delete an item
 const CommandCell = (props: GridCellProps): any => {
@@ -174,9 +173,19 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     {...others}
                     label='Amount Including Taxes'
                     labelPosition={Position.top}
-                    onChange={(event: any, newValue: string) => {
-                        fieldRenderProps.onChange({ value: newValue })
-                        // myChange({ value: Number(newValue), fieldName: 'AmountIncludingTaxes' });
+                    onChange={(event: any, newValue: string) => fieldRenderProps.onChange({ value: newValue })}
+                    onValidate={(value: string, event: any) => {
+                        let parsedValue = value.replace(/[^\d.-]/g, '') // strip all non numeric characters excluding decimals. https://stackoverflow.com/a/9409894
+                        if (!isNaN(Number(parsedValue)) && parsedValue !== "") {
+                            return parsedValue;
+                        }
+                        else if (parsedValue === "" && value === "") {
+                            // if both parsed and input value are "" this probably means the user cleared the field. Instead of prompting the user with an error just set the value to 0. 
+                            return "0";
+                        }
+                        else if (parsedValue === null || parsedValue === "") {
+                            alert(`'${value}' is not a valid input.  Please try again.`);
+                        }
                     }}
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
@@ -193,7 +202,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 <Field
                     component={isInEdit ? this.NumericTextBoxWithValidation : CurrencyDisplay}
                     name={`${parentField}[${props.dataItem[FORM_DATA_INDEX]}].${props.field}`}
-                    validator={minValidator}
                 />
             </td>
         );
@@ -312,7 +320,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     onCancel,
                     onRemove,
                     onSave,
-                    // myChange,
                     editIndex,
                     parentField: name,
                 }}
