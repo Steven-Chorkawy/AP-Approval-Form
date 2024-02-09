@@ -4,7 +4,7 @@ import { FormatCurrency, GetInvoiceByStatus, MyDateFormat2 } from '../../../MyHe
 import "@pnp/sp/webs";
 import "@pnp/sp/site-users/web";
 import "@pnp/sp/lists";
-import { Stack, Dropdown, SearchBox, DefaultButton, DetailsList, IColumn, SelectionMode } from '@fluentui/react';
+import { Stack, Dropdown, SearchBox, DefaultButton, DetailsList, IColumn, SelectionMode, MessageBar, MessageBarType } from '@fluentui/react';
 import { IApApprovalFormState } from './IApApprovalFormState';
 import { IAPInvoiceQueryItem } from '../../../interfaces/IAPInvoiceQueryItem';
 import { filterBy } from '@progress/kendo-data-query';
@@ -67,7 +67,29 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         maxWidth: 200,
         isResizable: true,
         onRender: (item: IAPInvoiceQueryItem) => {
-          return (<span title={item.Requires_x0020_Approval_x0020_From}>{item.Requires_x0020_Approval_x0020_From}</span>);
+          try {
+            return (
+              <div>
+                {
+                  item.Requires_x0020_Approval_x0020_From.split(';').map(req => {
+                    if (req === '') {
+                      return <div></div>;// return an empty div.
+                      // return <div><ActionButton onClick={() => { this.setState({ selectedRow: item }) }}>Request Approval</ActionButton></div>; // same event as clicking the title.
+                    }
+                    else if (item.Received_x0020_Approval_x0020_From.split(';').indexOf(req) >= 0) {
+                      return <div title={`${req} - Approved`}><MessageBar messageBarType={MessageBarType.success} isMultiline={false}>{req}</MessageBar></div>;
+                    }
+                    else {
+                      return <div title={`${req} - Awaiting Approval`}><MessageBar messageBarType={MessageBarType.info} isMultiline={false}>{req}</MessageBar></div>;
+                    }
+                  })
+                }
+              </div >
+            );
+          } catch (error) {
+            console.error(error);
+            return <div>FAILED TO LOAD APPROVERS!</div>;
+          }
         }
       },
       {
@@ -199,6 +221,8 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
         <DetailsList
           items={this.state.showTheseInvoices}
           columns={this._getColumns()}
+          compact={true}
+          onShouldVirtualize={() => { return false; }} // If users complain about slow loading we can try updating this. At the moment setting this to TRUE prevents all items from rendering. 
           selectionMode={SelectionMode.none}
         />
 

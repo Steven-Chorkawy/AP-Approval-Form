@@ -28,6 +28,7 @@ export const GetInvoiceByStatus = async (status: string): Promise<IAPInvoiceQuer
     for (let index = 0; index < output.length; index++) {
         const invoice = output[index];
         output[index].Requires_x0020_Approval_x0020_From = invoice.FieldValuesAsText.Requires_x005f_x0020_x005f_Approval_x005f_x0020_x005f_From;
+        output[index].Received_x0020_Approval_x0020_From = invoice.FieldValuesAsText.Received_x005f_x0020_x005f_Approval_x005f_x0020_x005f_From;
         delete output[index].FieldValuesAsText;
     }
     return output;
