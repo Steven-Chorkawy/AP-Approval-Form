@@ -540,6 +540,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={PeoplePicker}
                                                             onChange={(items: any[]) => GetUserByLoginName(items).then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value })).catch(reason => console.error(reason))}
                                                         />
+                                                        <div>Approved By: {this.props.invoice.Received_x0020_Approval_x0020_From}</div>
                                                     </div>
                                                 </FieldWrapper>
                                             </Stack>
