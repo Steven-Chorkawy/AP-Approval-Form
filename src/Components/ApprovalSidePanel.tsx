@@ -125,6 +125,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             this.setState({ departments: value.map((v: any) => { return { key: v.ID, text: v.Title }; }) })
         }).catch(reason => console.error(reason));
 
+        // GetAccountCodes() and GetUserEmails() has to load successfully before the form will render.
         GetAccountCodes(this.props.invoice.Title).then(value => {
             GetUserEmails(this.props.invoice.Requires_x0020_Approval_x0020_FromId).then(userEmails => {
                 this.setState({
@@ -139,8 +140,14 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     showDenyTextBox: false,
                     formState: MyFormState.New
                 });
-            }).catch(reason => console.error(reason));
-        }).catch(reason => console.error(reason));
+            }).catch(reason => {
+                console.error(reason);
+                alert('Failed to load list of Approvers!  Please contact helpdesk@clarington.net.');
+            });
+        }).catch(reason => {
+            console.error(reason);
+            alert('Failed to load Account Codes!  Please contact helpdesk@clarington.net.');
+        });
 
         getSP().web.currentUser().then(user => { this.setState({ currentUser: user }) }).catch(reason => console.error(reason));
 
