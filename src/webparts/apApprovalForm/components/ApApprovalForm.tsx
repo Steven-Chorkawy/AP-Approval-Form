@@ -30,7 +30,6 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
   }
 
   private _queryInvoices = (): void => {
-    console.log()
     GetInvoiceByStatus('Awaiting Approval').then(invoices => {
       const defaultInvoices = invoices.filter(f => f.Requires_x0020_Approval_x0020_FromId?.indexOf(this.props.currentUser.Id) > -1);
       this.setState({
