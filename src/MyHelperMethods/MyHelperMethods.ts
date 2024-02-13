@@ -100,7 +100,7 @@ export const UpdateApprovalEmailTrackerLineItem = async (userEmail: string, invo
     const currentTrackers = await getSP().web.lists.getByTitle(MyLists.ApprovalEmailTracker).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><And><Eq><FieldRef Name="Title"/><Value Type="Text">${invoiceTitle}</Value></Eq><Eq><FieldRef Name="ApproverEmail"/><Value Type="Text">${userEmail}</Value></Eq></And></Where></Query></View>` });
     for (let index = 0; index < currentTrackers.length; index++) {
         const element = currentTrackers[index];
-        getSP().web.lists.getByTitle(MyLists.ApprovalEmailTracker).items.getById(element.ID).update({ Approved: true });
+        getSP().web.lists.getByTitle(MyLists.ApprovalEmailTracker).items.getById(element.ID).update({ Approved: true }).catch(reason => console.error(reason));
     }
 }
 
@@ -150,8 +150,7 @@ export const SumAccountCodes = (accounts: IAccountCodeQueryItem[] | undefined): 
         const account: IAccountCodeQueryItem = accounts[index];
         total += Number(account.AmountIncludingTaxes);
     }
-
-    return total;
+    return Number(total.toFixed(2));
 }
 
 /**
@@ -208,7 +207,7 @@ export const MyDateFormat1 = (i: string): string => {
 export const MyDateFormat2 = (i: string): string => {
     if (i === null)
         return '';
-    return new Date(i).toISOString().slice(0, 10);;
+    return new Date(i).toISOString().slice(0, 10);
 }
 
 /**

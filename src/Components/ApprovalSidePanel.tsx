@@ -188,7 +188,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     labelPosition={Position.top}
                     onChange={(event: any, newValue: string) => fieldRenderProps.onChange({ value: newValue })}
                     onValidate={(value: string, event: any) => {
-                        let parsedValue = value.replace(/[^\d.-]/g, '') // strip all non numeric characters excluding decimals. https://stackoverflow.com/a/9409894
+                        const parsedValue = value.replace(/[^\d.-]/g, '') // strip all non numeric characters excluding decimals. https://stackoverflow.com/a/9409894
                         if (!isNaN(Number(parsedValue)) && parsedValue !== "") {
                             return parsedValue;
                         }
@@ -292,7 +292,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const onRemove = React.useCallback(
             (dataItem) => {
                 if (dataItem.ID) {
-                    DeleteAccountCode(dataItem.ID); // No need to await.
+                    DeleteAccountCode(dataItem.ID).catch(reason => console.error(reason)); // No need to await.
                 }
 
                 fieldArrayRenderProps.onRemove({
@@ -369,7 +369,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     }
                 }
                 const saveObj = DeletePropertiesBeforeSave(dataItem);
-                debugger;
 
                 await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
@@ -382,7 +381,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 this.props.onDismiss(); // close the side panel edit form.
             } catch (error) {
                 console.error(error);
-                debugger;
                 alert('Failed to Save AP Invoice.  Please refresh and try again.');
                 this.setState({ formState: MyFormState.Failed });
             }

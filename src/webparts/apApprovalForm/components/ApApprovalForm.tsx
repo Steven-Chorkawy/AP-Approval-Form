@@ -73,7 +73,6 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
                   item.Requires_x0020_Approval_x0020_From.split(';').map(req => {
                     if (req === '') {
                       return <div></div>;// return an empty div.
-                      // return <div><ActionButton onClick={() => { this.setState({ selectedRow: item }) }}>Request Approval</ActionButton></div>; // same event as clicking the title.
                     }
                     else if (item.Received_x0020_Approval_x0020_From.split(';').indexOf(req) >= 0) {
                       return <div title={`${req} - Approved`}><MessageBar messageBarType={MessageBarType.success} isMultiline={false}>{req}</MessageBar></div>;
