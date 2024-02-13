@@ -150,8 +150,7 @@ export const SumAccountCodes = (accounts: IAccountCodeQueryItem[] | undefined): 
         const account: IAccountCodeQueryItem = accounts[index];
         total += Number(account.AmountIncludingTaxes);
     }
-    debugger;
-    return total;
+    return Number(total.toFixed(2));
 }
 
 /**
