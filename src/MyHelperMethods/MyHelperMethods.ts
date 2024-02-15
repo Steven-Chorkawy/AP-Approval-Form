@@ -10,7 +10,6 @@ import { IAccountCodeNewItem, IAccountCodeQueryItem } from "../interfaces/IAccou
 import { HttpClient, IHttpClientOptions } from '@microsoft/sp-http';
 import { ISiteUser } from "@pnp/sp/site-users/types";
 
-
 let _sp: SPFI;
 
 const DENY_WORKFLOW_URL = "https://prod-02.canadacentral.logic.azure.com:443/workflows/d675bc40225a4e7a8bb257ba94c9106f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=H57-SJXbNldB0C4sYV7hWo2QP4FB-EJaMP0gMBn3XsM";
@@ -23,7 +22,7 @@ export const getSP = (context?: WebPartContext): SPFI => {
 };
 
 export const GetInvoiceByStatus = async (status: string): Promise<IAPInvoiceQueryItem[]> => {
-    let output = await getSP().web.lists.getByTitle(MyLists.Invoices).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><Eq><FieldRef Name="_Status"/><Value Type="Choice">${status}</Value></Eq></Where></Query></View>` }, 'FieldValuesAsText');
+    const output = await getSP().web.lists.getByTitle(MyLists.Invoices).getItemsByCAMLQuery({ ViewXml: `<View><Query><Where><Eq><FieldRef Name="_Status"/><Value Type="Choice">${status}</Value></Eq></Where></Query></View>` }, 'FieldValuesAsText');
 
     for (let index = 0; index < output.length; index++) {
         const invoice = output[index];
@@ -209,6 +208,7 @@ export const MyDateFormat2 = (i: string): string => {
         return '';
     return new Date(i).toISOString().slice(0, 10);
 }
+//#endregion
 
 /**
  * Remove fields that do not need to be/ cannot be saved in SharePoint.
@@ -286,4 +286,81 @@ export const DeleteAccountCode = async (id: number): Promise<void> => {
         alert('Failed to delete GL Account Code!  Please refresh this page and try again.');
     }
 }
-//#endregion
+
+/**
+ * Check that each Title property of the GL Account code is formatted correctly. 
+ * A correct format should be '999-99-999-99999-9999'.  21 characters long.
+ * 
+ * 02/15/2024 - The main issue is that there are extra '_' characters so this method will focus on removing those.
+ * TODO: This entire method could be replace when we use a lookup field instead of a text input for GL Account codes.
+ * @param accountCodes An array of GL Account codes for an AP Invoice.
+ * @returns A validated array of GL Account codes for an AP Invoice.
+ */
+export const ValidateAccountCodes = (accountCodes: any[]): any[] => {
+    const GL_ACCOUNT_CODE_MAX_LENGTH = 21; // including '-' characters.
+    for (let accountCodeIndex = 0; accountCodeIndex < accountCodes.length; accountCodeIndex++) {
+        const accountCode = accountCodes[accountCodeIndex];
+        let tmpTitle = accountCode.Title;
+
+        // Only check account codes that have not been saved into SharePoint.  Once a record is saved we don't want to change it.
+        if (accountCode.ID === '') {
+            // We only need to proceed if there are '_' characters.
+            if (tmpTitle.includes('_')) {
+                // First remove any extra '_' characters.
+                tmpTitle = tmpTitle.replaceAll('_', '');
+            }
+
+            // Only if the title length is not the expected amount will we need to remove more characters.
+            if (tmpTitle.length !== GL_ACCOUNT_CODE_MAX_LENGTH) {
+                // Split the string into an array separated by the '-' character.
+                // This should result in 5 elements that are all numeric.
+                const splitTitle = tmpTitle.split('-');
+                let removeChars = true;
+
+                for (let splitTitleIndex = 0; splitTitleIndex < splitTitle.length; splitTitleIndex++) {
+                    const splitTitleElement = splitTitle[splitTitleIndex];
+                    switch (splitTitleIndex) {
+                        case 0:
+                            // first element length should be 3.
+                            if (splitTitleElement.length !== 3)
+                                removeChars = false;
+                            break;
+                        case 1:
+                            // second element length should be 2.
+                            if (splitTitleElement.length !== 2)
+                                removeChars = false;
+                            break;
+                        case 2:
+                            // third element length should be 3.
+                            if (splitTitleElement.length !== 3)
+                                removeChars = false;
+                            break;
+                        case 3:
+                            // fourth element length should be 5.
+                            if (splitTitleElement.length !== 5)
+                                removeChars = false;
+                            break;
+                        case 4:
+                            // fifth element length should be 4.
+                            if (splitTitleElement.length !== 4)
+                                removeChars = false;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // If this is set to false that means that something is wrong with one of the code groups of the account code.  Not extra characters on the end. 
+                if (removeChars) {
+                    tmpTitle = tmpTitle.slice(0, GL_ACCOUNT_CODE_MAX_LENGTH);
+                }
+                removeChars = true; // reset this variable incase it was set to false.
+            }
+
+            // Final step is to update the array with any changes that have been made.
+            accountCodes[accountCodeIndex].Title = tmpTitle;
+        }
+    }
+
+    return accountCodes;
+}
