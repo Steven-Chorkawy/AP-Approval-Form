@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MaskedTextField, MessageBar, MessageBarType, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
-import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps } from "@progress/kendo-react-form";
+import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
 import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, ValidateAccountCodes, getSP } from '../MyHelperMethods/MyHelperMethods';
@@ -125,6 +125,22 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             this.setState({ departments: value.map((v: any) => { return { key: v.ID, text: v.Title }; }) })
         }).catch(reason => { console.error(reason); alert('Failed to load Departments!  Please contact helpdesk@clarington.net.') });
 
+        this._queryInvoice();
+
+        getSP().web.currentUser().then(user => { this.setState({ currentUser: user }) }).catch(reason => console.error(reason));
+
+        // Check to see if a single PDF is present.  If there is only one PDF add a link directly to that file.
+        getSP().web.getFolderByServerRelativePath(`Invoices/${this.props.invoice.Title}`).files().then((files: IFileInfo[]) => {
+            const PDFs_FOUND = files.filter((f) => f.Name.indexOf('.pdf') !== -1);
+            if (PDFs_FOUND.length === 1)
+                this.setState({ singlePDF: PDFs_FOUND[0] });
+        }).catch(reason => console.error(reason));
+    }
+
+    private _horizontalAlignment: Alignment = "space-between";
+    private _formFieldStyle = { width: '30%' };
+
+    private _queryInvoice = (): void => {
         // GetAccountCodes() and GetUserEmails() has to load successfully before the form will render.
         GetAccountCodes(this.props.invoice.Title).then(value => {
             GetUserEmails(this.props.invoice.Requires_x0020_Approval_x0020_FromId).then(userEmails => {
@@ -142,19 +158,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 });
             }).catch(reason => { console.error(reason); alert('Failed to load list of Approvers!  Please contact helpdesk@clarington.net.'); });
         }).catch(reason => { console.error(reason); alert('Failed to load Account Codes!  Please contact helpdesk@clarington.net.'); });
-
-        getSP().web.currentUser().then(user => { this.setState({ currentUser: user }) }).catch(reason => console.error(reason));
-
-        // Check to see if a single PDF is present.  If there is only one PDF add a link directly to that file.
-        getSP().web.getFolderByServerRelativePath(`Invoices/${this.props.invoice.Title}`).files().then((files: IFileInfo[]) => {
-            const PDFs_FOUND = files.filter((f) => f.Name.indexOf('.pdf') !== -1);
-            if (PDFs_FOUND.length === 1)
-                this.setState({ singlePDF: PDFs_FOUND[0] });
-        }).catch(reason => console.error(reason));
     }
-
-    private _horizontalAlignment: Alignment = "space-between";
-    private _formFieldStyle = { width: '30%' };
 
     private DepartmentDropdown = (fieldRenderProps: FieldRenderProps): any => {
         const { options } = fieldRenderProps;
@@ -357,6 +361,17 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         );
     }
 
+    // If a match is found this method will return false.  If no match is found this method will return true.
+    private _DisableApprovalButtons = (formRenderProps?: FormRenderProps): boolean => {
+        if (formRenderProps) {
+            return !formRenderProps.valueGetter('Requires_x0020_Approval_x0020_FromId')?.some((f: any) => f === this.state.currentUser.Id);
+        }
+        else {
+            // state.currentUser.ID and state.APInvoice.RequiresApprovalFromID must match. 
+            return !this.state.APInvoice.Requires_x0020_Approval_x0020_FromId.some(f => f === this.state.currentUser.Id);
+        }
+    }
+
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
@@ -422,7 +437,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         iconProps={{ iconName: 'CalculatorMultiply' }}
                                                         label='Deny'
                                                         onClick={() => this.setState({ showDenyTextBox: true, showApproveTextBox: false })}
-                                                        disabled={this.state.formState !== MyFormState.New}
+                                                        disabled={this.state.formState !== MyFormState.New || this._DisableApprovalButtons(formRenderProps)}
                                                     >
                                                         Deny
                                                     </ActionButton>
@@ -430,7 +445,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                         iconProps={{ iconName: 'AcceptMedium' }}
                                                         label='Approve'
                                                         onClick={() => this.setState({ showDenyTextBox: false, showApproveTextBox: true })}
-                                                        disabled={this.state.formState !== MyFormState.New}
+                                                        disabled={this.state.formState !== MyFormState.New || this._DisableApprovalButtons(formRenderProps)}
                                                     >
                                                         Approve
                                                     </ActionButton>
