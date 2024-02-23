@@ -524,7 +524,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Type"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -581,8 +581,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={CurrencyTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Amount Allocated"}
-                                                            disabled={true}
-                                                        />
+                                                            readOnly={true} title={'Read Only'} />
                                                         {
                                                             (formRenderProps.valueGetter('AmountAllocated') !== formRenderProps.valueGetter('Gross_x0020_Amount')) &&
                                                             <MessageBar messageBarType={MessageBarType.warning} isMultiline={true}>
@@ -602,8 +601,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"Vendor Name"}
-                                                            disabled={true}
-                                                        />
+                                                            readOnly={true} title={'Read Only'} />
                                                     </div>
                                                 </FieldWrapper>
                                                 <FieldWrapper style={this._formFieldStyle}>
@@ -613,7 +611,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"Vendor ID"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -624,7 +622,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Number"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -637,7 +635,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={DisplayDateTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Date"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -648,7 +646,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={DisplayDateTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Received Date"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -659,7 +657,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={CurrencyTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Invoice Total (incl. tax)"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -672,7 +670,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={CurrencyTextBox}
                                                             labelClassName={"k-form-label"}
                                                             label={"Total Tax Amount"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -683,7 +681,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"PO #"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
@@ -694,7 +692,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             component={TextField}
                                                             labelClassName={"k-form-label"}
                                                             label={"Close"}
-                                                            disabled={true}
+                                                            readOnly={true} title={'Read Only'}
                                                         />
                                                     </div>
                                                 </FieldWrapper>
