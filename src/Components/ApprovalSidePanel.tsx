@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MaskedTextField, MessageBar, MessageBarType, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
+import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MessageBar, MessageBarType, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
@@ -17,6 +17,7 @@ import '@progress/kendo-theme-default/dist/all.css';
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 import { MyFormState } from '../enums/MyFormState';
 import { IFileInfo } from '@pnp/sp/files/types';
+import { MaskedTextBox } from '@progress/kendo-react-inputs';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -228,10 +229,10 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const { validationMessage, visited, ...others } = fieldRenderProps;
         return (
             <div>
-                <MaskedTextField
+                <MaskedTextBox
                     {...others}
                     label="Account Code"
-                    mask="999-99-999-99999-9999"
+                    mask="000-00-000-00000-0000"
                     title="Enter a GL Account Code."
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
