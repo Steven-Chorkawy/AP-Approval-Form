@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, MessageBar, MessageBarType, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
+import { ActionButton, Alignment, DefaultButton, Dropdown, IDropdownOption, IconButton, Label, MessageBar, MessageBarType, Panel, PanelType, Position, PrimaryButton, ProgressIndicator, SpinButton, Stack, TextField } from '@fluentui/react';
 import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
@@ -229,11 +229,14 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const { validationMessage, visited, ...others } = fieldRenderProps;
         return (
             <div>
+                <Label required={true}>Account Code</Label>
                 <MaskedTextBox
                     {...others}
-                    label="Account Code"
+                    // label="Account Code"
                     mask="000-00-000-00000-0000"
                     title="Enter a GL Account Code."
+                    required={true}
+                    validationMessage='Please enter a valid GL Account Code!'
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
             </div>
