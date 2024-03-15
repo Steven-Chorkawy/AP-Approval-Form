@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, ValidateAccountCodes, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -17,7 +17,7 @@ import '@progress/kendo-theme-default/dist/all.css';
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 import { MyFormState } from '../enums/MyFormState';
 import { IFileInfo } from '@pnp/sp/files/types';
-import { MaskedTextBox } from '@progress/kendo-react-inputs';
+import { MaskedTextBox, MaskedTextBoxEvent } from '@progress/kendo-react-inputs';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -227,16 +227,37 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private MaskedTextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
+        // const [valid, setValid] = React.useState<boolean>(true);
+        // const [value, setValue] = React.useState<string>(fieldRenderProps.value);
+
         return (
             <div>
                 <Label required={true}>Account Code</Label>
                 <MaskedTextBox
                     {...others}
-                    // label="Account Code"
                     mask="000-00-000-00000-0000"
                     title="Enter a GL Account Code."
                     required={true}
                     validationMessage='Please enter a valid GL Account Code!'
+                    // onChange={(event: MaskedTextBoxChangeEvent) => {
+                    //     console.log('Account Code Change!', event.value);
+                    //     console.log('target.value', event.target.value);
+                    //     console.log('FieldRenderProp Value', fieldRenderProps.value);
+                    //     const eventValue: string = event.value;
+                    //     debugger;
+                    //     if (eventValue.length === 0) {
+                    //         setValid(false);
+                    //     }
+                    //     eventValue.includes('_') ? setValid(false) : setValid(true);
+
+                    //    setValue(eventValue);
+                    // }}
+                    // valid={valid}
+                    // value={value}
+                    onBlur={(event: MaskedTextBoxEvent) => {
+                        console.log('onBlur', event.target.value);
+                    }}
+                // valid={false}
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
             </div>
@@ -327,7 +348,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
         // Save the changes
         const onSave = React.useCallback(() => {
-            ValidateAccountCodes(fieldArrayRenderProps.value);
+            // ValidateAccountCodes(fieldArrayRenderProps.value);
             fieldArrayRenderProps.updateAmountAllocated();
             setEditIndex(undefined);
         }, [fieldArrayRenderProps]);
