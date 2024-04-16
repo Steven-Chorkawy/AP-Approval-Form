@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { DeleteAccountCode, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -76,14 +76,6 @@ const CommandCell = (props: GridCellProps): any => {
         },
         [onSave]
     );
-
-    // const onCancelClick = React.useCallback(
-    //     (e) => {
-    //         e.preventDefault();
-    //         onCancel();
-    //     },
-    //     [onCancel]
-    // );
 
     return isInEdit ? (
         <td className="k-command-cell">
@@ -227,9 +219,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private MaskedTextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
-        // const [valid, setValid] = React.useState<boolean>(true);
-        // const [value, setValue] = React.useState<string>(fieldRenderProps.value);
-
+   
         return (
             <div>
                 <Label required={true}>Account Code</Label>
@@ -239,25 +229,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     title="Enter a GL Account Code."
                     required={true}
                     validationMessage='Please enter a valid GL Account Code!'
-                    // onChange={(event: MaskedTextBoxChangeEvent) => {
-                    //     console.log('Account Code Change!', event.value);
-                    //     console.log('target.value', event.target.value);
-                    //     console.log('FieldRenderProp Value', fieldRenderProps.value);
-                    //     const eventValue: string = event.value;
-                    //     debugger;
-                    //     if (eventValue.length === 0) {
-                    //         setValid(false);
-                    //     }
-                    //     eventValue.includes('_') ? setValid(false) : setValid(true);
-
-                    //    setValue(eventValue);
-                    // }}
-                    // valid={valid}
-                    // value={value}
                     onBlur={(event: MaskedTextBoxEvent) => {
                         console.log('onBlur', event.target.value);
                     }}
-                // valid={false}
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
             </div>
@@ -400,31 +374,43 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
-            try {
-                if (dataItem?.GLAccountCodes) {
-                    for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
-                        const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
-                        if (!accountCode.ID) {
-                            await CreateAccountCodeLineItem(accountCode);
-                        }
-                    }
-                }
-                const saveObj = DeletePropertiesBeforeSave(dataItem);
 
-                await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
-                if (this.state.showApproveTextBox) {
-                    // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
-                    await IsInvoiceApproved(this.props.invoice.ID);
-                }
+            console.log('submit res');
+            console.log(dataItem);
+            debugger;
 
-                this.setState({ formState: MyFormState.Complete });
-                this.props.onDismiss(); // close the side panel edit form.
-            } catch (error) {
-                console.error(error);
-                alert('Failed to Save AP Invoice.  Please refresh and try again.');
-                this.setState({ formState: MyFormState.Failed });
-            }
+            // ? How can I check if Requires Approval From has been modified?  
+            // ? Should I use a state variable or should I compare the Requires_x0020_Approval_x0020_FromId array with the Requires_x0020_Approval_x0020_FromStringId array values?
+            // ? The lengths of the arrays can be the same even if they're modified but the values will be different.
+            // ? I think that using a state variable would be the most straight forward. 
+
+            // TODO: Uncomment this after testing.
+            // try {
+            //     if (dataItem?.GLAccountCodes) {
+            //         for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
+            //             const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
+            //             if (!accountCode.ID) {
+            //                 await CreateAccountCodeLineItem(accountCode);
+            //             }
+            //         }
+            //     }
+            //     const saveObj = DeletePropertiesBeforeSave(dataItem);
+
+            //     await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
+
+            //     if (this.state.showApproveTextBox) {
+            //         // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
+            //         await IsInvoiceApproved(this.props.invoice.ID);
+            //     }
+
+            //     this.setState({ formState: MyFormState.Complete });
+            //     this.props.onDismiss(); // close the side panel edit form.
+            // } catch (error) {
+            //     console.error(error);
+            //     alert('Failed to Save AP Invoice.  Please refresh and try again.');
+            //     this.setState({ formState: MyFormState.Failed });
+            // }
         }
 
         return (
