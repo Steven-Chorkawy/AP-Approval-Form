@@ -219,7 +219,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private MaskedTextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
-   
+
         return (
             <div>
                 <Label required={true}>Account Code</Label>
@@ -374,7 +374,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
-
 
             console.log('submit res');
             console.log(dataItem);
@@ -564,7 +563,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             principalTypes={[PrincipalType.User]}
                                                             resolveDelay={1000}
                                                             component={PeoplePicker}
-                                                            onChange={(items: any[]) => GetUserByLoginName(items).then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value })).catch(reason => console.error(reason))}
+                                                            onChange={(items: any[]) => {
+                                                                // TODO:  Should I set the state var that will trigger the HTTP workflow here?
+                                                                GetUserByLoginName(items)
+                                                                    .then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value }))
+                                                                    .catch(reason => console.error(reason));
+                                                            }}
                                                         />
                                                         <div>Approved By: {this.props.invoice.Received_x0020_Approval_x0020_From}</div>
                                                     </div>
