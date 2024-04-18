@@ -383,15 +383,17 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
             body: body,
             headers: requestHeaders
         };
-        console.log("Sending Email");
-
         this.props.context.httpClient.post(
             APPROVER_LIST_MODIFIED_WORKFLOW,
             HttpClient.configurations.v1,
-            httpClientOptions)
-            .then((response: HttpClientResponse): Promise<HttpClientResponse> => {
+            httpClientOptions
+        )
+            .then((response: HttpClientResponse) => {
                 console.log("Workflow Triggered!");
-                return response.json();
+            }).catch(reason => {
+                console.error('Failed to trigger approval workflow!');
+                console.error(reason);
+                alert('Failed to trigger approval workflow.  Please try again or notify helpdesk@clarington.net');
             });
     }
 
@@ -399,10 +401,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
 
-            console.log('submit res');
-            console.log(dataItem);
             const INVOICE_ID: number = dataItem.ID;
-            debugger;
 
             try {
                 if (dataItem?.GLAccountCodes) {
@@ -426,7 +425,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 if (this.state.approverListChanged) {
                     // Call the approver list modified workflow.  
                     //This will apply item level permissions and notify users that the invoice is ready for them.
-                    debugger;
                     this._triggerApprovalWorkflow(INVOICE_ID);
                 }
 
