@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { DeleteAccountCode, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { APPROVER_LIST_MODIFIED_WORKFLOW, CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -18,6 +18,7 @@ import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 import { MyFormState } from '../enums/MyFormState';
 import { IFileInfo } from '@pnp/sp/files/types';
 import { MaskedTextBox, MaskedTextBoxEvent } from '@progress/kendo-react-inputs';
+import { HttpClient, HttpClientResponse, IHttpClientOptions } from '@microsoft/sp-http';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -34,7 +35,8 @@ export interface IApprovalSidePanelState {
     showDenyTextBox: boolean;
     currentUser: ISiteUserInfo;
     formState: MyFormState;
-    singlePDF: IFileInfo; // A preview of the single PDF file if there is only one available. 
+    singlePDF: IFileInfo; // A preview of the single PDF file if there is only one available.
+    approverListChanged: boolean; // TRUE = approver list has been modified.
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -107,6 +109,8 @@ const CommandCell = (props: GridCellProps): any => {
 export default class ApprovalSidePanel extends React.Component<IApprovalSidePanelProps, IApprovalSidePanelState> {
     constructor(props: IApprovalSidePanelProps) {
         super(props);
+
+        this.setState({ approverListChanged: false });
 
         GetChoiceColumn(MyLists.Invoices, "ChequeType").then(value => {
             this.setState({
@@ -371,45 +375,68 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         }
     }
 
+    private _triggerApprovalWorkflow = async (invoiceID: number): Promise<void> => {
+        const body: string = JSON.stringify({ 'InvoiceID': invoiceID });
+        const requestHeaders: Headers = new Headers();
+        requestHeaders.append('Content-type', 'application/json');
+        const httpClientOptions: IHttpClientOptions = {
+            body: body,
+            headers: requestHeaders
+        };
+        console.log("Sending Email");
+
+        this.props.context.httpClient.post(
+            APPROVER_LIST_MODIFIED_WORKFLOW,
+            HttpClient.configurations.v1,
+            httpClientOptions)
+            .then((response: HttpClientResponse): Promise<HttpClientResponse> => {
+                console.log("Workflow Triggered!");
+                return response.json();
+            });
+    }
+
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
 
             console.log('submit res');
             console.log(dataItem);
+            const INVOICE_ID: number = dataItem.ID;
             debugger;
 
-            // ? How can I check if Requires Approval From has been modified?  
-            // ? Should I use a state variable or should I compare the Requires_x0020_Approval_x0020_FromId array with the Requires_x0020_Approval_x0020_FromStringId array values?
-            // ? The lengths of the arrays can be the same even if they're modified but the values will be different.
-            // ? I think that using a state variable would be the most straight forward. 
+            try {
+                if (dataItem?.GLAccountCodes) {
+                    for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
+                        const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
+                        if (!accountCode.ID) {
+                            await CreateAccountCodeLineItem(accountCode);
+                        }
+                    }
+                }
+                const saveObj = DeletePropertiesBeforeSave(dataItem);
 
-            // TODO: Uncomment this after testing.
-            // try {
-            //     if (dataItem?.GLAccountCodes) {
-            //         for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
-            //             const accountCode = dataItem.GLAccountCodes[accountCodeIndex];
-            //             if (!accountCode.ID) {
-            //                 await CreateAccountCodeLineItem(accountCode);
-            //             }
-            //         }
-            //     }
-            //     const saveObj = DeletePropertiesBeforeSave(dataItem);
+                await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
 
-            //     await getSP().web.lists.getByTitle(MyLists.Invoices).items.getById(this.props.invoice.ID).update(saveObj);
+                if (this.state.showApproveTextBox) {
+                    // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
+                    await IsInvoiceApproved(this.props.invoice.ID);
+                }
 
-            //     if (this.state.showApproveTextBox) {
-            //         // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
-            //         await IsInvoiceApproved(this.props.invoice.ID);
-            //     }
+                // We only need to call the trigger method if the approver list has been modified.
+                if (this.state.approverListChanged) {
+                    // Call the approver list modified workflow.  
+                    //This will apply item level permissions and notify users that the invoice is ready for them.
+                    debugger;
+                    this._triggerApprovalWorkflow(INVOICE_ID);
+                }
 
-            //     this.setState({ formState: MyFormState.Complete });
-            //     this.props.onDismiss(); // close the side panel edit form.
-            // } catch (error) {
-            //     console.error(error);
-            //     alert('Failed to Save AP Invoice.  Please refresh and try again.');
-            //     this.setState({ formState: MyFormState.Failed });
-            // }
+                this.setState({ formState: MyFormState.Complete });
+                this.props.onDismiss(); // close the side panel edit form.
+            } catch (error) {
+                console.error(error);
+                alert('Failed to Save AP Invoice.  Please refresh and try again.');
+                this.setState({ formState: MyFormState.Failed });
+            }
         }
 
         return (
@@ -564,7 +591,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             resolveDelay={1000}
                                                             component={PeoplePicker}
                                                             onChange={(items: any[]) => {
-                                                                // TODO:  Should I set the state var that will trigger the HTTP workflow here?
+                                                                this.setState({ approverListChanged: true });
                                                                 GetUserByLoginName(items)
                                                                     .then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value }))
                                                                     .catch(reason => console.error(reason));
