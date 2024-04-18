@@ -4,7 +4,7 @@ import { IAPInvoiceQueryItem } from '../interfaces/IAPInvoiceQueryItem';
 import { Form, FieldWrapper, Field, FormElement, FieldArray, FieldRenderProps, FieldArrayRenderProps, FormRenderProps } from "@progress/kendo-react-form";
 import { Grid, GridCellProps, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
 import { Error } from "@progress/kendo-react-labels";
-import { CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
+import { APPROVER_LIST_MODIFIED_WORKFLOW, CreateAccountCodeLineItem, DeleteAccountCode, DeletePropertiesBeforeSave, FormatCurrency, GetAccountCodes, GetChoiceColumn, GetDepartments, GetUserByLoginName, GetUserEmails, IsInvoiceApproved, MyDateFormat2, SendDenyEmail, SumAccountCodes, UpdateApprovalEmailTrackerLineItem, getSP } from '../MyHelperMethods/MyHelperMethods';
 import { MyLists } from '../enums/MyLists';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { PrincipalType } from '@pnp/sp';
@@ -18,6 +18,7 @@ import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 import { MyFormState } from '../enums/MyFormState';
 import { IFileInfo } from '@pnp/sp/files/types';
 import { MaskedTextBox, MaskedTextBoxEvent } from '@progress/kendo-react-inputs';
+import { HttpClient, HttpClientResponse, IHttpClientOptions } from '@microsoft/sp-http';
 
 export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
@@ -34,7 +35,8 @@ export interface IApprovalSidePanelState {
     showDenyTextBox: boolean;
     currentUser: ISiteUserInfo;
     formState: MyFormState;
-    singlePDF: IFileInfo; // A preview of the single PDF file if there is only one available. 
+    singlePDF: IFileInfo; // A preview of the single PDF file if there is only one available.
+    approverListChanged: boolean; // TRUE = approver list has been modified.
 }
 
 //#region Copy Paste from Kendo. https://www.telerik.com/kendo-react-ui/components/form/field-array/
@@ -77,14 +79,6 @@ const CommandCell = (props: GridCellProps): any => {
         [onSave]
     );
 
-    // const onCancelClick = React.useCallback(
-    //     (e) => {
-    //         e.preventDefault();
-    //         onCancel();
-    //     },
-    //     [onCancel]
-    // );
-
     return isInEdit ? (
         <td className="k-command-cell">
             <button
@@ -115,6 +109,8 @@ const CommandCell = (props: GridCellProps): any => {
 export default class ApprovalSidePanel extends React.Component<IApprovalSidePanelProps, IApprovalSidePanelState> {
     constructor(props: IApprovalSidePanelProps) {
         super(props);
+
+        this.setState({ approverListChanged: false });
 
         GetChoiceColumn(MyLists.Invoices, "ChequeType").then(value => {
             this.setState({
@@ -227,8 +223,6 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
 
     private MaskedTextInputWithValidation = (fieldRenderProps: FieldRenderProps): any => {
         const { validationMessage, visited, ...others } = fieldRenderProps;
-        // const [valid, setValid] = React.useState<boolean>(true);
-        // const [value, setValue] = React.useState<string>(fieldRenderProps.value);
 
         return (
             <div>
@@ -239,25 +233,9 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                     title="Enter a GL Account Code."
                     required={true}
                     validationMessage='Please enter a valid GL Account Code!'
-                    // onChange={(event: MaskedTextBoxChangeEvent) => {
-                    //     console.log('Account Code Change!', event.value);
-                    //     console.log('target.value', event.target.value);
-                    //     console.log('FieldRenderProp Value', fieldRenderProps.value);
-                    //     const eventValue: string = event.value;
-                    //     debugger;
-                    //     if (eventValue.length === 0) {
-                    //         setValid(false);
-                    //     }
-                    //     eventValue.includes('_') ? setValid(false) : setValid(true);
-
-                    //    setValue(eventValue);
-                    // }}
-                    // valid={valid}
-                    // value={value}
                     onBlur={(event: MaskedTextBoxEvent) => {
                         console.log('onBlur', event.target.value);
                     }}
-                // valid={false}
                 />
                 {visited && validationMessage && <Error>{validationMessage}</Error>}
             </div>
@@ -397,9 +375,34 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
         }
     }
 
+    private _triggerApprovalWorkflow = async (invoiceID: number): Promise<void> => {
+        const body: string = JSON.stringify({ 'InvoiceID': invoiceID });
+        const requestHeaders: Headers = new Headers();
+        requestHeaders.append('Content-type', 'application/json');
+        const httpClientOptions: IHttpClientOptions = {
+            body: body,
+            headers: requestHeaders
+        };
+        this.props.context.httpClient.post(
+            APPROVER_LIST_MODIFIED_WORKFLOW,
+            HttpClient.configurations.v1,
+            httpClientOptions
+        )
+            .then((response: HttpClientResponse) => {
+                console.log("Workflow Triggered!");
+            }).catch(reason => {
+                console.error('Failed to trigger approval workflow!');
+                console.error(reason);
+                alert('Failed to trigger approval workflow.  Please try again or notify helpdesk@clarington.net');
+            });
+    }
+
     public render(): React.ReactElement<IApprovalSidePanelProps> {
         const handleSubmit = async (dataItem: any): Promise<any> => {
             this.setState({ formState: MyFormState.InProgress });
+
+            const INVOICE_ID: number = dataItem.ID;
+
             try {
                 if (dataItem?.GLAccountCodes) {
                     for (let accountCodeIndex = 0; accountCodeIndex < dataItem.GLAccountCodes.length; accountCodeIndex++) {
@@ -416,6 +419,13 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 if (this.state.showApproveTextBox) {
                     // After invoice has been updated check to see if it is approved.  This might cause the invoice to update one more time.
                     await IsInvoiceApproved(this.props.invoice.ID);
+                }
+
+                // We only need to call the trigger method if the approver list has been modified.
+                if (this.state.approverListChanged) {
+                    // Call the approver list modified workflow.  
+                    //This will apply item level permissions and notify users that the invoice is ready for them.
+                    this._triggerApprovalWorkflow(INVOICE_ID);
                 }
 
                 this.setState({ formState: MyFormState.Complete });
@@ -578,7 +588,12 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                             principalTypes={[PrincipalType.User]}
                                                             resolveDelay={1000}
                                                             component={PeoplePicker}
-                                                            onChange={(items: any[]) => GetUserByLoginName(items).then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value })).catch(reason => console.error(reason))}
+                                                            onChange={(items: any[]) => {
+                                                                this.setState({ approverListChanged: true });
+                                                                GetUserByLoginName(items)
+                                                                    .then(value => formRenderProps.onChange('Requires_x0020_Approval_x0020_FromId', { value: value }))
+                                                                    .catch(reason => console.error(reason));
+                                                            }}
                                                         />
                                                         <div>Approved By: {this.props.invoice.Received_x0020_Approval_x0020_From}</div>
                                                     </div>

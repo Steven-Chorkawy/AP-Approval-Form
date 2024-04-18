@@ -13,6 +13,8 @@ import { ISiteUser } from "@pnp/sp/site-users/types";
 let _sp: SPFI;
 
 const DENY_WORKFLOW_URL = "https://prod-02.canadacentral.logic.azure.com:443/workflows/d675bc40225a4e7a8bb257ba94c9106f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=H57-SJXbNldB0C4sYV7hWo2QP4FB-EJaMP0gMBn3XsM";
+export const APPROVER_LIST_MODIFIED_WORKFLOW = "https://prod-21.canadacentral.logic.azure.com:443/workflows/b6a3c8936a104ba6af0e21861cbd24b2/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2lr1ovb9d-6vLLLefO7fqubhmho_zl3fSitzmWwZWH8";
+
 
 export const getSP = (context?: WebPartContext): SPFI => {
     if (context) {
