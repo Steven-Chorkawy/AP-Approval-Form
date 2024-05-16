@@ -24,6 +24,7 @@ export interface IApprovalSidePanelProps {
     invoice: IAPInvoiceQueryItem;
     onDismiss: any;
     context: WebPartContext;
+    canUserEnterAccountCodes: boolean;
 }
 
 export interface IApprovalSidePanelState {
@@ -348,17 +349,38 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                 <br />
                 <Grid data={dataWithIndexes} dataItemKey={dataItemKey}>
                     <GridToolbar>
-                        <DefaultButton
-                            title="Add New GL Code"
-                            onClick={onAdd} iconProps={{ iconName: 'Add' }}>
-                            Add New GL Code
-                        </DefaultButton>
-                        <p>Please save the form after adding a new GL Account Code.</p>
+                        {console.log('grid state', this.state)}
+                        {console.log('fieldArrayRenderProps', fieldArrayRenderProps)}
+                        {
+                            fieldArrayRenderProps.canUserEnterAccountCodes ?
+                                <div>
+                                    <DefaultButton
+                                        title="Add New GL Code"
+                                        onClick={onAdd} iconProps={{ iconName: 'Add' }}>
+                                        Add New GL Code
+                                    </DefaultButton>
+                                    <p>Please save the form after adding a new GL Account Code.</p>
+                                </div> :
+                                <MessageBar
+                                    messageBarType={MessageBarType.blocked}
+                                    isMultiline={true}
+                                >
+                                    <div>
+                                        You do not have permissions to add GL Account Codes.  You will still be able to approve or deny this invoice without entering a GL Account Code.
+                                    </div>
+                                    <div>
+                                        Please contact helpdesk@clarington.net for support with entering GL Account Codes.
+                                    </div>
+                                </MessageBar>
+                        }
                     </GridToolbar>
                     <GridColumn field="Title" title="Account Code" cell={this.NameCell} />
                     <GridColumn field="AmountIncludingTaxes" title="Amount Including Taxes" cell={this.NumberCell} />
                     <GridColumn field="PO_x0020_Line_x0020_Item_x0020__" title="PO Line Item #" cell={this.TextFieldCell} />
-                    <GridColumn cell={CommandCell} width={100} />
+                    {
+                        fieldArrayRenderProps.canUserEnterAccountCodes &&
+                        <GridColumn cell={CommandCell} width={100} />
+                    }
                 </Grid>
             </FormGridEditContext.Provider>
         );
@@ -780,6 +802,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     dataItemKey={DATA_ITEM_KEY}
                                                     invoiceID={formRenderProps.valueGetter('ID')}
                                                     invoiceTitle={formRenderProps.valueGetter('Title')}
+                                                    canUserEnterAccountCodes={this.props.canUserEnterAccountCodes}
                                                     updateAmountAllocated={() => formRenderProps.onChange('AmountAllocated', { value: SumAccountCodes(formRenderProps.valueGetter('GLAccountCodes')) })}
                                                     component={this.FormGrid}
                                                 />

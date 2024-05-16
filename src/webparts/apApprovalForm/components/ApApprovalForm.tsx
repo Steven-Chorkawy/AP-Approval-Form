@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { IApApprovalFormProps } from './IApApprovalFormProps';
-import { FormatCurrency, GetInvoiceByStatus, MyDateFormat2 } from '../../../MyHelperMethods/MyHelperMethods';
+import { FormatCurrency, GetInvoiceByStatus, MyDateFormat2, getSP } from '../../../MyHelperMethods/MyHelperMethods';
 import "@pnp/sp/webs";
 import "@pnp/sp/site-users/web";
 import "@pnp/sp/lists";
@@ -10,6 +10,8 @@ import { IAPInvoiceQueryItem } from '../../../interfaces/IAPInvoiceQueryItem';
 import { filterBy } from '@progress/kendo-data-query';
 import ApprovalSidePanel from '../../../Components/ApprovalSidePanel';
 import PackageSolutionVersion from '../../../Components/PackageSolutionVersion';
+import { MyLists } from '../../../enums/MyLists';
+import { PermissionKind } from '@pnp/sp/security';
 
 
 export default class ApApprovalForm extends React.Component<IApApprovalFormProps, IApApprovalFormState> {
@@ -23,8 +25,17 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
       yourInvoices: [],
       selectedView: 'yourInvoices',
       showTheseInvoices: [],
-      searchFilter: ""
+      searchFilter: "",
+      canUserEnterAccountCodes: false
     };
+
+    // Check if the user has access to create Account Codes. 
+    getSP().web.lists.getByTitle(MyLists.InvoiceAccountCodes).currentUserHasPermissions(PermissionKind.AddListItems)
+      .then(value => this.setState({ canUserEnterAccountCodes: value }))
+      .catch(reason => {
+        alert('Failed to get user permissions');
+        console.error(reason);
+      })
 
     this._queryInvoices();
   }
@@ -233,6 +244,7 @@ export default class ApApprovalForm extends React.Component<IApApprovalFormProps
               this._queryInvoices();
             }}
             context={this.props.context}
+            canUserEnterAccountCodes={this.state.canUserEnterAccountCodes}
           />
         }
         <br />
