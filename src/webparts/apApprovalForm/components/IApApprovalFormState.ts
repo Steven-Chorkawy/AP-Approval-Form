@@ -8,4 +8,5 @@ export interface IApApprovalFormState {
     selectedView: string; // yourInvoices, approvedInvoices, or awaitingApprovalInvoices.
     searchFilter?: string;
     selectedRow?: IAPInvoiceQueryItem;
+    canUserEnterAccountCodes: boolean;
 }
