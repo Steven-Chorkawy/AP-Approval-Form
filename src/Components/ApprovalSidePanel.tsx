@@ -487,6 +487,7 @@ export default class ApprovalSidePanel extends React.Component<IApprovalSidePane
                                                     this.state.singlePDF &&
                                                     <DefaultButton style={{ width: '100%', marginTop: '5px' }} href={`${this.state.singlePDF.ServerRelativeUrl.replace(this.state.singlePDF.Name, encodeURIComponent(this.state.singlePDF.Name))}`} target='_blank' data-interception="off">View {this.state.singlePDF.Name}</DefaultButton>
                                                 }
+                                                <DefaultButton style={{ width: '100%', marginTop: '5px' }} href={`https://claringtonnet.sharepoint.com/sites/Finance/Invoices/Forms/All.aspx?FilterField1=Vendor_x0020_Name&FilterValue1=${encodeURIComponent(this.state.APInvoice.Vendor_x0020_Name)}&FilterType1=Text`} target='_blank' data-interception="off">View More from {this.state.APInvoice.Vendor_x0020_Name}</DefaultButton>
                                             </Stack.Item>
                                             <Stack.Item grow={4}>
                                                 <Stack horizontal horizontalAlign="space-evenly">
